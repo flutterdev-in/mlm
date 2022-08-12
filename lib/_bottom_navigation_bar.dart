@@ -25,7 +25,7 @@ class BottomBarWithBody extends StatefulWidget {
 class _BottomBarWithBodyState extends State<BottomBarWithBody> {
   @override
   void initState() {
-  
+    // userBox.delete(boxStrings.userUID);
     super.initState();
   }
   @override
@@ -88,17 +88,19 @@ class _BottomBarWithBodyState extends State<BottomBarWithBody> {
     var cartIcon = const Icon(MdiIcons.cart);
 
     return  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: cartMOS.authUserCartCR.limit(6).snapshots(),
+      stream: userCartCR.value.limit(6).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
           if (snapshot.data!.docs.length > 5){
             return Badge(
-            badgeContent: const Text("5+"),
+              badgeColor: Colors.purple,
+            badgeContent: const Text("5+",style: TextStyle(color: Colors.white),),
             child: cartIcon);
             
           }else{
             return Badge(
-            badgeContent: Text(snapshot.data!.docs.length.toString()),
+              badgeColor: Colors.purple,
+            badgeContent: Text(snapshot.data!.docs.length.toString(),style: const TextStyle(color: Colors.white),),
             child: cartIcon)
             ;
           }

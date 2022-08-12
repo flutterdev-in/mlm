@@ -1,5 +1,9 @@
+import 'package:advaithaunnathi/dart/const_global_strings.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/hive/hive_boxes.dart';
+import 'package:advaithaunnathi/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 
 class CartModel {
   int nos;
@@ -25,7 +29,7 @@ class CartModel {
   factory CartModel.fromMap(Map<String, dynamic> cartMap) {
     return CartModel(
       nos: cartMap[cartMOS.nos],
-      productDoc: cartMOS.authUserCartCR.doc(cartMap[cartMOS.productDoc]),
+      productDoc:productMOS.productsCR.doc(cartMap[cartMOS.productDoc]),
       lastTime: cartMap[cartMOS.lastTime]?.toDate(),
     );
   }
@@ -40,5 +44,6 @@ class CartModelObjects {
 
   final lastTime = "lastTime";
 
-  final authUserCartCR = authUserCR.doc(fireUser!.uid).collection("cart");
+  
 }
+final userCartCR =(fireUser!=null? authUserCR.doc(fireUser!.uid).collection(cart):nonAuthUserCR.doc(userBoxUID).collection(cart)).obs;
