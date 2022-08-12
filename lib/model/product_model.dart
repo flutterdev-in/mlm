@@ -1,14 +1,16 @@
 import 'package:advaithaunnathi/shopping/assets/shopping_cat_images.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 class ProductModel {
   String name;
-  List<String>? images;
+  List? images;
   DateTime uploadTime;
-  List<String> categories;
+  List categories;
   num mrp;
   num? price;
-  List<String>? descriptions;
+  List? descriptions;
+  DocumentReference<Map<String, dynamic>>? docRef;
 
   ProductModel({
     required this.name,
@@ -35,7 +37,7 @@ class ProductModel {
   factory ProductModel.fromMap(Map<String, dynamic> productMap) {
     return ProductModel(
       name: productMap[productMOS.name] ?? "",
-      images: productMap[productMOS.images],
+      images: productMap[productMOS.images] ,
       uploadTime: productMap[productMOS.uploadTime]?.toDate(),
       categories: productMap[productMOS.categories],
       mrp: productMap[productMOS.mrp],
@@ -48,6 +50,7 @@ class ProductModel {
 ProductModelObjects productMOS = ProductModelObjects();
 
 class ProductModelObjects {
+  
   final name = "name";
   final price = "price";
   final mrp = "mrp";
@@ -55,6 +58,7 @@ class ProductModelObjects {
   final images = "images";
   final descriptions = "descriptions";
   final uploadTime = "uploadTime";
+  final productsCR = FirebaseFirestore.instance.collection("products");
 }
 
 List<ProductModel> dummyProducts() {
@@ -119,4 +123,10 @@ List<ProductModel> dummyProducts() {
   ];
 }
 
+Future<void> addDummyProductsToFire()async{
+  for (var i in dummyProducts()){
+   await productMOS.productsCR.add(i.toMap());
+  }
+  
+}
 

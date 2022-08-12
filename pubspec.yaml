@@ -53,7 +53,8 @@ dependencies:
   persistent_bottom_nav_bar:
   easy_debounce:
   razorpay_flutter:
-  carousel_slider: ^4.1.1
+  carousel_slider: 
+  badges: 
 
 dev_dependencies:
   flutter_test:

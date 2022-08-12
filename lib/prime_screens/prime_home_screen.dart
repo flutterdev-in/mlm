@@ -1,8 +1,11 @@
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../model/product_model.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
   const PrimeHomeScreen({Key? key}) : super(key: key);
@@ -32,7 +35,11 @@ class PrimeHomeScreen extends StatelessWidget {
               ),
             ),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              TextButton(onPressed: () {}, child: const Text("BUY")),
+              TextButton(onPressed: ()async{
+
+              await  addDummyProductsToFire();
+           
+          }, child: const Text("BUY")),
               const Text("|"),
               TextButton(onPressed: () {}, child: const Text("SELL")),
               const Text("|"),

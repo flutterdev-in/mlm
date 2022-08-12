@@ -1,5 +1,6 @@
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/a_offers_corosal.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/b_shopping_cat_w.dart';
+import 'package:advaithaunnathi/shopping/Home%20screen%20w/c_products_grid_list.dart';
 import 'package:flutter/material.dart';
 
 class ShoppingScreenHomePage extends StatefulWidget {
@@ -23,13 +24,14 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Shopping screen")),
-      body: SingleChildScrollView(
-        child: Column(
-          children: const [
-            OffersCarousel(),
-            ShoppingCatW(),
-          ],
-        ),
+      body: ListView(
+        children: const [
+          OffersCarousel(),
+          ShoppingCatW(),
+          SizedBox(height: 10),
+          ProductsGridList(),
+          SizedBox(height: 60),
+        ],
       ),
     );
   }
