@@ -1,5 +1,4 @@
 import 'package:advaithaunnathi/dart/colors.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:advaithaunnathi/user/user_account_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +37,6 @@ class _AuthGateState extends State<AuthGate> {
           // );
           // const LoginView();
         } else if (snapshot.hasData && snapshot.data != null) {
-          userUID = FirebaseAuth.instance.currentUser!.uid;
           return const UserAccountScreen();
         }
         return const CircularProgressIndicator();

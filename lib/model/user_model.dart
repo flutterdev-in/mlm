@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:intl/intl.dart';
 
+import '../hive/hive_boxes.dart';
+
 class UserModel {
   int? memberPosition;
   String profileName;
@@ -11,14 +13,7 @@ class UserModel {
   String? refMemberId;
   String? profilePhotoUrl;
   DateTime? paymentTime;
-  // int ulp1;
-  // int ulp2;
-  // int ulp3;
-  // int ulp4;
-  // int ulp5;
-  // int matrixIncome;
   int directIncome;
-  // List? downLevelEndPositions;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   UserModel({
@@ -55,9 +50,7 @@ class UserModel {
       userEmail: userMap[umos.userEmail] ?? "",
       refMemberId: userMap[umos.refMemberId],
       paymentTime: userMap[umos.paymentTime]?.toDate(),
- 
       directIncome: userMap[umos.directIncome] ?? 0,
-
       profilePhotoUrl: userMap[umos.profilePhotoUrl],
     );
   }
@@ -131,8 +124,18 @@ class UserModelObjects {
       }
     });
 
-    if (userUID != null) {
-      await authUserCR.doc(userUID).update(updatedMap);
+    await authUserCR.doc(fireUser()?.uid).update(updatedMap);
+  }
+
+  Future<void> updateCartOfnonAuthUser() async {
+    if (userBoxUID() != null) {
+      HttpsCallable function = FirebaseFunctions.instance
+          .httpsCallable('update_cart_after_nonAuth_login');
+      await Future.delayed(const Duration(seconds: 3));
+      await function.call(<String, dynamic>{
+        "authID": fireUser()?.uid,
+        "nonAuthID": userBoxUID(),
+      });
     }
   }
 }

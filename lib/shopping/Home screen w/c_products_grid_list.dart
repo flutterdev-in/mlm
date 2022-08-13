@@ -104,9 +104,8 @@ class ProductsGridList extends StatelessWidget {
 
   //
   Widget addToCart(ProductModel pm) {
-    
     return Obx(() => StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream:userCartCR.value
+        stream: userCartCR.value
             .where(cartMOS.productDoc, isEqualTo: pm.docRef!.id)
             .limit(1)
             .snapshots(),
@@ -131,20 +130,27 @@ class ProductsGridList extends StatelessWidget {
                         onPressed: () async {
                           await Future.delayed(
                               const Duration(microseconds: 900));
-                          if (cm.nos == 1) {
-                            await cm.thisDR!.delete();
-                          } else {
-                            await cm.thisDR!.update({cartMOS.nos: cm.nos - 1});
+                          if (pm.stockAvailable > 1) {
+                            if (cm.nos == 1) {
+                              await cm.thisDR!.delete();
+                            } else {
+                              await cm.thisDR!
+                                  .update({cartMOS.nos: cm.nos - 1});
+                            }
                           }
                         }),
-                    GFIconButton(
-                        size: GFSize.SMALL,
-                        color: Colors.purple,
-                        icon: Text(
-                          cm.nos.toString(),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {}),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Text(
+                        cm.nos.toString(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
+                            decoration: cm.nos > pm.stockAvailable
+                                ? TextDecoration.lineThrough
+                                : null),
+                      ),
+                    ),
                     GFIconButton(
                       color: Colors.purple,
                       type: GFButtonType.outline,
@@ -152,7 +158,10 @@ class ProductsGridList extends StatelessWidget {
                       icon: const Icon(MdiIcons.plus),
                       onPressed: () async {
                         await Future.delayed(const Duration(microseconds: 900));
-                        await cm.thisDR!.update({cartMOS.nos: cm.nos + 1});
+                        if (cm.nos < pm.maxPerOrder &&
+                            cm.nos < pm.stockAvailable) {
+                          await cm.thisDR!.update({cartMOS.nos: cm.nos + 1});
+                        }
                       },
                     ),
                   ],
@@ -178,7 +187,8 @@ class ProductsGridList extends StatelessWidget {
                   } else if (userBoxUID == null) {
                     await nonAuthUserCR.add({}).then((dr) async {
                       await userBox.put(boxStrings.userUID, dr.id);
-                     userCartCR.value = nonAuthUserCR.doc(dr.id).collection(cart);
+                      userCartCR.value =
+                          nonAuthUserCR.doc(dr.id).collection(cart);
                       await dr.collection(cart).doc(pm.docRef!.id).set(cartM);
                     });
                   }

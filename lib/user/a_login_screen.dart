@@ -1,9 +1,14 @@
 import 'package:advaithaunnathi/dart/colors.dart';
+import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../dart/const_global_strings.dart';
+import '../dart/firebase.dart';
+import '../model/cart_model.dart';
 
 class GoogleLoginView extends StatelessWidget {
   const GoogleLoginView({Key? key}) : super(key: key);
@@ -76,8 +81,13 @@ class GoogleLoginView extends StatelessWidget {
       );
       await FirebaseAuth.instance.signOut();
 
-      await firebaseAuth.signInWithCredential(oAuthCredential).then((user) {
+      await firebaseAuth
+          .signInWithCredential(oAuthCredential)
+          .then((user) async {
         Get.snackbar("login", "success");
+        userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
+
+        umos.updateCartOfnonAuthUser();
       }).catchError((e) {
         Get.snackbar("Error while login", "Please try again");
       });

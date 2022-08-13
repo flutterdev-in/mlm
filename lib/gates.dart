@@ -28,7 +28,7 @@ class AccountGate extends StatelessWidget {
               // );
               const GoogleLoginView();
         } else if (snapshot.hasData && snapshot.data != null) {
-          userUID = fireUser!.uid;
+          
           return isPrimeScreen
               ? 
               const PrimeHomeScreen()

@@ -46,4 +46,4 @@ class CartModelObjects {
 
   
 }
-final userCartCR =(fireUser!=null? authUserCR.doc(fireUser!.uid).collection(cart):nonAuthUserCR.doc(userBoxUID).collection(cart)).obs;
+var userCartCR =(fireUser()!=null? authUserCR.doc(fireUser()!.uid).collection(cart):nonAuthUserCR.doc(userBoxUID()).collection(cart)).obs;

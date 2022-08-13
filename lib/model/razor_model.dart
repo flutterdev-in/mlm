@@ -42,7 +42,7 @@ class PaymentModelObjects {
   final payment = "payment";
   String refTc = "";
   final paymentDR =
-      authUserCR.doc(fireUser!.uid).collection("docs").doc("payment");
+      authUserCR.doc(fireUser()?.uid).collection("docs").doc("payment");
 
   final amount = 100000;
   final razorpay = Razorpay();
@@ -56,14 +56,14 @@ class PaymentModelObjects {
       // 'description': 'Fine T-Shirt',
       // 'timeout': 60, // in seconds
       'prefill': {
-        'contact': fireUser?.phoneNumber ?? '',
-        'email': fireUser?.email ?? ''
+        'contact': fireUser()?.phoneNumber ?? '',
+        'email': fireUser()?.email ?? ''
       }
     });
   }
 
   Future<void> razorOder() async {
-    if (fireUser != null) {
+    if (fireUser() != null) {
       String? orderID;
 
       var paymentDS0 = await paymentDR.get();
@@ -71,7 +71,7 @@ class PaymentModelObjects {
       if (!paymentDS0.exists || paymentDS0.data()!["orderID"] == null) {
         HttpsCallable setOrder =
             FirebaseFunctions.instance.httpsCallable('setOrderID');
-        await setOrder.call(<String>[fireUser!.uid]);
+        await setOrder.call(<String>[fireUser()!.uid]);
       }
       var paymentDS1 = await paymentDR.get();
       orderID = paymentDS1.data()!["orderID"];
@@ -91,7 +91,7 @@ class PaymentModelObjects {
       HttpsCallable setOrder =
           FirebaseFunctions.instance.httpsCallable('paymentVerification');
       await setOrder.call(<String, dynamic>{
-        "uid": fireUser!.uid,
+        "uid": fireUser()!.uid,
         "paymentID": response.paymentId!,
         "refMemberId": refTc,
       });

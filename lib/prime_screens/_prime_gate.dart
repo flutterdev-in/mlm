@@ -4,7 +4,6 @@ import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
 import 'package:advaithaunnathi/prime_screens/registration_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/loader/gf_loader.dart';
 import 'package:getwidget/getwidget.dart';
 
 class PrimeGate extends StatelessWidget {
@@ -13,7 +12,7 @@ class PrimeGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: authUserCR.doc(userUID!).snapshots(),
+      stream: authUserCR.doc(fireUser()?.uid).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           var um = UserModel.fromMap(snapshot.data!.data()!);

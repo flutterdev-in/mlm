@@ -65,9 +65,9 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
         .limit(1)
         .get()
         .then((qs) {
-      if (qs.docs.isNotEmpty && qs.docs.first.id == fireUser?.uid) {
+      if (qs.docs.isNotEmpty && qs.docs.first.id == fireUser()?.uid) {
         return "Please enter others Reference ID";
-      } else if (qs.docs.isNotEmpty && qs.docs.first.id != fireUser?.uid) {
+      } else if (qs.docs.isNotEmpty && qs.docs.first.id != fireUser()?.uid) {
         return "Success";
       } else {
         return "Member does't exist please enter valid Reference ID";
@@ -118,7 +118,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                       .get()
                       .then((qs) {
                     if (qs.docs.isEmpty ||
-                        qs.docs.first.reference.id == fireUser?.uid) {
+                        qs.docs.first.reference.id == fireUser()?.uid) {
                       vld("Ref ID, doesn't exist,\nPlease enter valid reference ID");
                       sfx.value = false;
                     } else {
