@@ -24,11 +24,8 @@ class ShoppingCatW extends StatelessWidget {
       ),
     );
   }
-  
 
   Widget cat(ShoopingCatModel scm) {
-
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -43,6 +40,3 @@ class ShoppingCatW extends StatelessWidget {
     );
   }
 }
-
-
-

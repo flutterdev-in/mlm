@@ -1,8 +1,11 @@
 import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/model/pin_code_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getwidget/getwidget.dart';
 
 class AddressEditScreen extends StatelessWidget {
   final AddressModel? addressModel;
@@ -13,15 +16,17 @@ class AddressEditScreen extends StatelessWidget {
     //
     AddressValidators v = AddressValidators();
     v.name = addressModel?.name ?? "";
+    v.phone = addressModel?.phone ?? "";
     v.house = addressModel?.house ?? "";
 
     v.pinCode = addressModel?.pinCode.toString() ?? "";
 
     //
-    var pin = (addressModel?.pinCode ?? 0).obs;
+    var pin = (addressModel?.pinCode ?? "").obs;
     var city = (addressModel?.pinCodeModel.city ?? "").obs;
 
     var listAreas = (addressModel?.pinCodeModel.listAreas ?? []).obs;
+    var postOffice = (addressModel?.postOffice ?? "").obs;
 
     var state = (addressModel?.pinCodeModel.state ?? "").obs;
     var district = (addressModel?.pinCodeModel.district ?? "").obs;
@@ -29,6 +34,7 @@ class AddressEditScreen extends StatelessWidget {
     //
     AddressTextControllers tc = AddressTextControllers();
     tc.name.text = addressModel?.name ?? "";
+    tc.phone.text = addressModel?.phone ?? "";
     tc.colony.text = addressModel?.colony ?? "";
     tc.house.text = addressModel?.house ?? "";
     tc.landmark.text = addressModel?.landmark ?? "";
@@ -38,32 +44,69 @@ class AddressEditScreen extends StatelessWidget {
     var formKey = GlobalKey<FormState>();
 
     String? editing;
+
+    bool isAllValid() {
+      return (fireUser() != null &&
+          pin.value.isNotEmpty &&
+          tc.phone.text.contains(RegExp(r'^[0-9]{10}$')) &&
+          tc.name.text.length > 4 &&
+          tc.house.text.length > 2);
+    }
+
+    void allValidate() {
+      if (pin.value.isEmpty) {
+        editing = "pin";
+        v.pinCode = "Invalid pin";
+      } else if (!tc.phone.text.contains(RegExp(r'^[0-9]{10}$'))) {
+        editing = "phone";
+        v.phone = "Invalid Phone number";
+      } else if (tc.name.text.length < 4) {
+        editing = "name";
+        v.phone = "Invalid name";
+      } else if (tc.house.text.length < 3) {
+        editing = "house";
+        v.phone = "Invalid house details";
+      } else if (postOffice.value.isEmpty) {
+        editing = "po";
+      } else {
+        editing = null;
+      }
+      formKey.currentState?.validate().toString();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Address"),
         actions: [
           TextButton(
               onPressed: () async {
-                if (fireUser != null &&
-                    pin.value != 0 &&
-                    tc.name.text.length > 4 &&
-                    tc.house.text.length > 2) {
+                isLoading.value = true;
+                if (isAllValid()) {
                   var am = AddressModel(
                       name: tc.name.text,
+                      phone: tc.phone.text,
                       house: tc.house.text,
                       colony: tc.colony.text,
                       landmark: tc.colony.text,
                       pinCode: pin.value,
+                      postOffice: postOffice.value,
                       updatedTime: DateTime.now(),
                       pinCodeModel: PinCodeModel(
                           isValid: true,
                           listAreas: listAreas,
                           city: city.value,
-                          district: city.value,
-                          state: city.value));
+                          district: district.value,
+                          state: state.value));
+                  if (addressModel?.docRef != null) {
+                    await addressModel!.docRef!
+                        .set(am.toMap(), SetOptions(merge: true));
+                  } else {
+                    await addressMOs.addressCR.add(am.toMap());
+                  }
 
-                  addressMOs.addressCR.add(am.toMap());
+                  Get.back();
                 } else {
+                  allValidate();
                   Get.snackbar(
                     "Error",
                     "Please fill all the required fields",
@@ -72,11 +115,14 @@ class AddressEditScreen extends StatelessWidget {
                     colorText: Colors.red,
                   );
                 }
+                isLoading.value = false;
               },
-              child: const Text(
-                "Add",
-                style: TextStyle(color: Colors.white),
-              ))
+              child: Obx(() => isLoading.value
+                  ? const GFLoader(type: GFLoaderType.circle)
+                  : Text(
+                      addressModel != null ? "Update" : "Add",
+                      style: const TextStyle(color: Colors.white),
+                    )))
         ],
       ),
       body: Form(
@@ -102,6 +148,33 @@ class AddressEditScreen extends StatelessWidget {
                     if (value.length < 5) {
                       editing = "name";
                       v.name = "Please enter valid name";
+                      formKey.currentState?.validate().toString();
+                    } else if (editing != null) {
+                      editing = null;
+                      formKey.currentState?.validate().toString();
+                    }
+                  },
+                ),
+                //
+                //
+                TextFormField(
+                  maxLength: 10,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Reciever Phone number*',
+                    counterText: "",
+                  ),
+                  controller: tc.phone,
+                  validator: (value) {
+                    if (editing == "phone") {
+                      return v.phone;
+                    }
+                    return null;
+                  },
+                  onChanged: (txt) {
+                    if (!txt.contains(RegExp(r'^[0-9]{10}$'))) {
+                      editing = "phone";
+                      v.phone = "Please enter valid Phone number";
                       formKey.currentState?.validate().toString();
                     } else if (editing != null) {
                       editing = null;
@@ -171,7 +244,7 @@ class AddressEditScreen extends StatelessWidget {
                             return null;
                           },
                           onChanged: (txt) async {
-                            pin.value = 0;
+                            pin.value = "";
                             if (txt.length == 6 &&
                                 txt.contains(RegExp(r'^[0-9]{6}$'))) {
                               //
@@ -188,7 +261,7 @@ class AddressEditScreen extends StatelessWidget {
                                 formKey.currentState?.validate().toString();
                                 //
 
-                                pin.value = int.parse(txt);
+                                pin.value = txt;
                                 listAreas.value = pinM!.listAreas ?? [];
                                 city.value = pinM.city ?? "";
                                 district.value = pinM.district ?? "";
@@ -211,6 +284,12 @@ class AddressEditScreen extends StatelessWidget {
                       child: Obx(() => DropdownButtonFormField(
                             value:
                                 listAreas.isNotEmpty ? listAreas.first : null,
+                            validator: (po) {
+                              if (editing == "po") {
+                                return "Select post office";
+                              }
+                              return null;
+                            },
                             decoration: const InputDecoration(
                               labelText: "Post office*",
                               // enabledBorder: OutlineInputBorder(),
@@ -219,7 +298,10 @@ class AddressEditScreen extends StatelessWidget {
                                 .map((e) => DropdownMenuItem<String>(
                                     value: e, child: Text(e)))
                                 .toList(),
-                            onChanged: (v) {},
+                            onChanged: (v) {
+                              editing = null;
+                              postOffice.value = v?.toString() ?? "";
+                            },
                           )),
                     ),
                   ],
@@ -279,6 +361,7 @@ class AddressEditScreen extends StatelessWidget {
 
 class AddressTextControllers {
   var name = TextEditingController();
+  var phone = TextEditingController();
   var house = TextEditingController();
   var colony = TextEditingController();
 
@@ -289,6 +372,7 @@ class AddressTextControllers {
 
 class AddressValidators {
   var name = "";
+  var phone = "";
   var house = "";
 
   var pinCode = "";

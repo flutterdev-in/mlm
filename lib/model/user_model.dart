@@ -10,6 +10,7 @@ class UserModel {
   String profileName;
   String? memberID;
   String userEmail;
+  String? phoneNumber;
   String? refMemberId;
   String? profilePhotoUrl;
   DateTime? paymentTime;
@@ -21,6 +22,7 @@ class UserModel {
     required this.profileName,
     required this.memberID,
     required this.userEmail,
+    required this.phoneNumber,
     required this.refMemberId,
     required this.profilePhotoUrl,
     required this.paymentTime,
@@ -33,6 +35,7 @@ class UserModel {
       umos.memberPosition: memberPosition,
       umos.profileName: profileName,
       umos.userEmail: userEmail,
+      umos.phoneNumber: phoneNumber,
       umos.memberID: memberID,
       umos.refMemberId: refMemberId,
       umos.paymentTime:
@@ -48,6 +51,7 @@ class UserModel {
       profileName: userMap[umos.profileName] ?? "",
       memberID: userMap[umos.memberID],
       userEmail: userMap[umos.userEmail] ?? "",
+      phoneNumber: userMap[umos.phoneNumber],
       refMemberId: userMap[umos.refMemberId],
       paymentTime: userMap[umos.paymentTime]?.toDate(),
       directIncome: userMap[umos.directIncome] ?? 0,
@@ -63,6 +67,7 @@ class UserModelObjects {
   final profileName = "profileName";
   final memberID = "memberID";
   final userEmail = "userEmail";
+  final phoneNumber = "phoneNumber";
   final refMemberId = "refMemberId";
   final profilePhotoUrl = "profilePhotoUrl";
   final downLevelEndPositions = "downLevelEndPositions";
@@ -136,6 +141,8 @@ class UserModelObjects {
         "authID": fireUser()?.uid,
         "nonAuthID": userBoxUID(),
       });
+
+      userBox.delete(boxStrings.userUID);
     }
   }
 }

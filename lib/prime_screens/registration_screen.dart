@@ -6,7 +6,6 @@ import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -25,30 +24,43 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
   @override
   void initState() {
-    pmos.razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, pmos.onSuccess);
-    pmos.razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, pmos.onError);
+    paymentMOs.razorpay
+        .on(Razorpay.EVENT_PAYMENT_SUCCESS, paymentMOs.onSuccess);
+    paymentMOs.razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, paymentMOs.onError);
     super.initState();
   }
 
   @override
   void dispose() {
-    pmos.razorpay.clear();
+    paymentMOs.razorpay.clear();
+    sfx.value = false;
+    phoneNumber = null;
+    firstName = fireUser()?.displayName?.split(" ").last ?? "";
+    surName = fireUser()?.displayName?.split(" ").first ?? "";
     super.dispose();
   }
-  
+
+  String firstName = fireUser()?.displayName?.split(" ").last ?? "";
+  String surName = fireUser()?.displayName?.split(" ").first ?? "";
+  String? phoneNumber;
+
   //
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Reg screen")),
+      appBar: AppBar(title: const Text("Registration screen")),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              names(),
+              phone(),
               refID(),
+              const SizedBox(height: 10),
               dropDown(),
+              const SizedBox(height: 20),
               const Text("Prime membership : \u{20B9} 1000/-"),
               const SizedBox(height: 30),
               buyButton(),
@@ -81,7 +93,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
     //
     void vld(String text) {
-      pmos.refTc = text;
+      paymentMOs.refTc = text;
       formKey.currentState?.validate().toString();
     }
 
@@ -100,7 +112,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             ),
             maxLength: 8,
             validator: (value) {
-              return pmos.refTc;
+              return paymentMOs.refTc;
             },
             onChanged: (v) async {
               if (v.isEmpty) {
@@ -147,31 +159,29 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
     return Row(
       children: [
-        const Text("Interested in"),
-        Container(
-          height: 50,
-          // width: 100,
-          margin: const EdgeInsets.all(20),
-          child: DropdownButtonHideUnderline(
-            child: Obx(() => GFDropdown(
-                  padding: const EdgeInsets.all(15),
-                  borderRadius: BorderRadius.circular(10),
-                  border: const BorderSide(color: Colors.black12, width: 1),
-                  dropdownButtonColor: Colors.grey[300],
-                  value: dv.value,
-                  onChanged: (newValue) {
-                    dv.value = newValue.toString();
-                    interestedIn = newValue.toString();
-                  },
-                  items:
-                      ['Marketing', 'Stock Point', 'Distribution', 'Investment']
-                          .map((value) => DropdownMenuItem(
-                                value: value,
-                                child: Text(value),
-                              ))
-                          .toList(),
-                )),
-          ),
+        const Expanded(flex: 1, child: Text("Interested in")),
+        Expanded(
+          flex: 1,
+          child: Obx(() => DropdownButtonFormField(
+                // decoration: const InputDecoration(
+                //     // labelText: "Post office*",
+                //     // enabledBorder: OutlineInputBorder(),
+                //     ),
+                borderRadius: BorderRadius.circular(12),
+                value: dv.value,
+                items: [
+                  'Marketing',
+                  'Stock Point',
+                  'Distribution',
+                  'Investment'
+                ]
+                    .map((e) =>
+                        DropdownMenuItem<String>(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (v) {
+                  dv.value = v.toString();
+                },
+              )),
         ),
       ],
     );
@@ -183,14 +193,13 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
         alignment: Alignment.topCenter,
         child: ElevatedButton(
             onPressed: () async {
-              if (sfx.value) {
+              if (isAllTrue()) {
                 isLoading.value = true;
-                await pmos.razorOder();
+                await paymentMOs.razorOder(phoneNumber);
                 await Future.delayed(const Duration(seconds: 3));
                 isLoading.value = false;
               } else {
-                Get.snackbar("Error", "Please enter valid reference ID",
-                    backgroundColor: Colors.white, colorText: Colors.red);
+                bottomSheet();
               }
             },
             child: isLoading.value
@@ -199,5 +208,118 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
       ),
     );
   }
-}
 
+  Widget phone() {
+    return Row(
+      children: [
+        const Icon(MdiIcons.phone),
+        const SizedBox(
+          width: 15,
+        ),
+        Expanded(
+          child: TextField(
+            keyboardType: TextInputType.phone,
+            maxLength: 10,
+            decoration: const InputDecoration(
+              labelText: "Phone number",
+              // counterText: "",
+            ),
+            onChanged: (txt) {
+              phoneNumber = txt;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget names() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Icon(MdiIcons.accountTie),
+            const SizedBox(
+              width: 15,
+            ),
+            Expanded(
+              child: TextField(
+                controller: TextEditingController(
+                    text: fireUser()?.displayName?.split(" ").last),
+                decoration: const InputDecoration(
+                  labelText: "First Name",
+                ),
+                onChanged: (txt) {
+                  firstName = txt;
+                },
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const Icon(MdiIcons.accountTie),
+            const SizedBox(
+              width: 15,
+            ),
+            Expanded(
+              child: TextField(
+                controller: TextEditingController(
+                    text: fireUser()?.displayName?.split(" ").first),
+                decoration: const InputDecoration(
+                  labelText: "Last name / Surname",
+                ),
+                onChanged: ((txt) {
+                  surName = txt;
+                }),
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  bool isAllTrue() {
+    if ((phoneNumber?.contains(RegExp(r'^[0-9]{10}$')) ?? false) &&
+        firstName.length > 4 &&
+        surName.isNotEmpty &&
+        sfx.value) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void bottomSheet() {
+    Get.bottomSheet(Container(
+      color: Colors.white,
+      height: 200,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (firstName.length < 4)
+            const Padding(
+              padding: EdgeInsets.all(3.0),
+              child: Text("Please enter valid First Name"),
+            ),
+          if (surName.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(3.0),
+              child: Text("Please enter valid Surname"),
+            ),
+          if (!(phoneNumber?.contains(RegExp(r'^[0-9]{10}$')) ?? false))
+            const Padding(
+              padding: EdgeInsets.all(3.0),
+              child: Text("Please enter valid phone number"),
+            ),
+          if (!sfx.value)
+            const Padding(
+              padding: EdgeInsets.all(3.0),
+              child: Text("Please enter valid reference ID"),
+            ),
+        ],
+      ),
+    ));
+  }
+}

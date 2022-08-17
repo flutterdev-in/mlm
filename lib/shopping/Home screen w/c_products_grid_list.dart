@@ -1,8 +1,10 @@
 import 'package:advaithaunnathi/dart/const_global_strings.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';
 import 'package:advaithaunnathi/model/product_model.dart';
+import 'package:advaithaunnathi/shopping/Product%20screen/product_view_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +49,16 @@ class ProductsGridList extends StatelessWidget {
                       padding: const EdgeInsets.all(5.0),
                       child: Column(
                         children: [
-                          SizedBox(
-                            height: 120,
-                            child: CachedNetworkImage(
-                                imageUrl: pm.images?.first ?? ""),
+                          InkWell(
+                            child: SizedBox(
+                              height: 120,
+                              child: CachedNetworkImage(
+                                  imageUrl: pm.images?.first ?? ""),
+                            ),
+                            onTap: () async {
+                              await waitMilli(200);
+                              Get.to(() => ProductViewScreen(pm));
+                            },
                           ),
                           const SizedBox(height: 8),
                           Text(pm.name,

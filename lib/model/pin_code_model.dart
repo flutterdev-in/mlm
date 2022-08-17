@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 
 class PinCodeModel {
   bool isValid; // Success
-  List<String>? listAreas; //Name
+  List? listAreas; //Name
   String? city; // Block
   String? district; // District
   String? state; // State

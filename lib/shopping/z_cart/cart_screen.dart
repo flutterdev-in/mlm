@@ -1,14 +1,17 @@
+import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
+import 'package:advaithaunnathi/dart/colors.dart';
+import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/dart/repeatFunctions.dart';
+import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';
-import 'package:advaithaunnathi/model/product_model.dart';
-import 'package:advaithaunnathi/shopping/z_cart/before_billing_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advaithaunnathi/shopping/addresses/address_edit_screen.dart';
+import 'package:advaithaunnathi/shopping/z_cart/cart_items_w.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterfire_ui/firestore.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:advaithaunnathi/user/a_login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -22,7 +25,7 @@ class CartScreen extends StatelessWidget {
       body: Container(
         height: double.maxFinite,
         width: double.maxFinite,
-        color: Colors.black12,
+        color: const Color.fromARGB(10, 0, 0, 0),
         child: Obx(() => StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: userCartCR.value.snapshots(),
             builder: (context, snapshot) {
@@ -33,323 +36,216 @@ class CartScreen extends StatelessWidget {
                 return const Center(child: Text("No items in cart"));
               }
               if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                return itemsCartW(snapshot.data!.docs);
+                return CartItemsW(snapshot.data!.docs);
               }
               return const GFLoader(type: GFLoaderType.circle);
             })),
       ),
     );
   }
-
-  Widget itemsCartW(List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
-    var isOutOfStock = false.obs;
-    Future<num> getFinalPrice() async {
-      num finalPrice = 0;
-      for (var i in docs) {
-        var cm = CartModel.fromMap(i.data());
-        await cm.productDoc.get().then((ds) async {
-          if (ds.exists) {
-            var pm = ProductModel.fromMap(ds.data()!);
-            finalPrice += cm.nos * (pm.price ?? pm.mrp);
-            if (cm.nos > pm.stockAvailable) {
-              isOutOfStock = true.obs;
-            }
-          }
-        });
-      }
-      return finalPrice;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Text(
-              "Shopping cart (${docs.length} ${docs.length == 1 ? 'item' : 'items'})",
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        Expanded(
-          child: ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                var cm = CartModel.fromMap(docs[index].data());
-                cm.thisDR = docs[index].reference;
-                return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: cm.productDoc.snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!.data() != null) {
-                        var pm = ProductModel.fromMap(snapshot.data!.data()!);
-                        pm.docRef = snapshot.data!.reference;
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          child: Card(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    children: [
-                                      SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 10),
-                                            child: CachedNetworkImage(
-                                                imageUrl: pm.images!.first),
-                                          )),
-                                      const SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          GFIconButton(
-                                              shape: GFIconButtonShape.circle,
-                                              type: GFButtonType.outline,
-                                              size: GFSize.SMALL,
-                                              color: Colors.purple,
-                                              icon: const Icon(MdiIcons.minus),
-                                              onPressed: () async {
-                                                await Future.delayed(
-                                                    const Duration(
-                                                        microseconds: 900));
-                                                if (cm.nos > 1) {
-                                                  await cm.thisDR!.update({
-                                                    cartMOS.nos: cm.nos - 1
-                                                  });
-                                                }
-                                              }),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                8, 0, 8, 0),
-                                            child: Text(
-                                              cm.nos.toString(),
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.purple,
-                                                  decoration:
-                                                      cm.nos > pm.stockAvailable
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null),
-                                            ),
-                                          ),
-                                          GFIconButton(
-                                            shape: GFIconButtonShape.circle,
-                                            color: Colors.purple,
-                                            type: GFButtonType.outline,
-                                            size: GFSize.SMALL,
-                                            icon: const Icon(MdiIcons.plus),
-                                            onPressed: () async {
-                                              await Future.delayed(
-                                                  const Duration(
-                                                      microseconds: 900));
-                                              if (cm.nos < pm.maxPerOrder &&
-                                                  cm.nos < pm.stockAvailable) {
-                                                await cm.thisDR!.update(
-                                                    {cartMOS.nos: cm.nos + 1});
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 12, right: 17),
-                                              child: Text(pm.name,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis),
-                                            ),
-                                            const SizedBox(height: 15),
-                                            (pm.price == null ||
-                                                    pm.price == pm.mrp)
-                                                ? Text(
-                                                    "\u{20B9}${pm.mrp}",
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  )
-                                                : Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        "\u{20B9}${pm.price} ",
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      const SizedBox(width: 2),
-                                                      Text("\u{20B9}${pm.mrp} ",
-                                                          style: const TextStyle(
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .lineThrough),
-                                                          textScaleFactor: 0.9),
-                                                      const SizedBox(width: 3),
-                                                      Text(
-                                                          "${((1 - pm.price! / pm.mrp) * 100).toStringAsFixed(0)}% off",
-                                                          textScaleFactor: 0.9,
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .deepOrange
-                                                                .shade600,
-                                                          )),
-                                                    ],
-                                                  ),
-                                            if (cm.nos > pm.stockAvailable)
-                                              const Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    10, 8, 0, 0),
-                                                child: Text("Out of stock",
-                                                    style: TextStyle(
-                                                        color: Colors.red)),
-                                              ),
-                                          ],
-                                        ),
-                                        Align(
-                                          alignment: Alignment.topRight,
-                                          child: GFIconButton(
-                                              // color: GFColors.WHITE,
-                                              size: GFSize.SMALL,
-                                              color: Colors.transparent,
-                                              // type: GFButtonType.transparent,
-                                              icon: const Icon(MdiIcons.close,
-                                                  size: 23,
-                                                  color: Colors.black),
-                                              onPressed: () async {
-                                                await Future.delayed(
-                                                    const Duration(
-                                                        microseconds: 900));
-                                                await cm.thisDR!.delete();
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ]),
-                          )),
-                        );
-                      }
-                      return const ListTile(
-                        title: GFLoader(type: GFLoaderType.square),
-                      );
-                    });
-              }),
-        ),
-        StreamBuilder<num>(
-            stream: getFinalPrice().asStream(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 6, 6, 5),
-                  child: Card(
-                    color: Colors.purple,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("Total amount",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                    "\u{20B9} ${snapshot.data!.toStringAsFixed(0)}.0",
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Obx(() => Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  if (isOutOfStock.value)
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 20),
-                                      child: Text("Some of items\nout of stock",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          )),
-                                    ),
-                                  GFButton(
-                                      color: Colors.white,
-                                      type: GFButtonType.solid,
-                                      onPressed: () async {
-                                        if (!isOutOfStock.value) {
-                                          // var am = await addressMOs
-                                          //     .dummyAddressModel();
-                                          // Get.to(() => AddressEditScreen(am));
-                                          Get.to(() =>
-                                              const AfterProceedPayGate());
-                                        }
-                                      },
-                                      child: const Text("Proceed to Buy",
-                                          style: TextStyle(
-                                              color: Colors.purple,
-                                              fontWeight: FontWeight.bold))),
-                                ],
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return const GFLoader(type: GFLoaderType.circle);
-            }),
-      ],
-    );
-  }
 }
 
-class AfterProceedPayGate extends StatelessWidget {
-  const AfterProceedPayGate({Key? key}) : super(key: key);
+class AddressW extends StatelessWidget {
+  const AddressW({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      initialData: FirebaseAuth.instance.currentUser,
-      builder: (context, snapshot) {
-        // User is not signed in
-        if (!snapshot.hasData) {
-          return
-              // const SignInScreen(
-              //   providerConfigs: [
-              //     GoogleProviderConfiguration(
-              //         clientId: "1:237115759240:android:57b787e3a03aca69fc9d3d"),
-              //   ],
-              // );
-              const GoogleLoginView();
-        } else if (snapshot.hasData && snapshot.data != null) {
-          return const BeforeBillingScreen();
-        }
-        return const CircularProgressIndicator();
+    return Obx(() => !userCartCR.value.path.contains(nonAuthUserCR.path)
+        ? StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: addressMOs.addressCR
+                .orderBy(addressMOs.updatedTime, descending: true)
+                .limit(1)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return waitingW();
+              }
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                var am = AddressModel.fromMap(snapshot.data!.docs.first.data());
+                return validAaddressW(am);
+              }
+              return addAddressW();
+            })
+        : GFListTile(
+            color: Colors.cyan,
+            titleText: "Login to add delivery address",
+            icon: const Icon(MdiIcons.gestureDoubleTap),
+            onTap: () async {
+              await Future.delayed(const Duration(milliseconds: 500));
+              if (fireUser() == null) {
+                bottomBarLogin();
+              }
+            },
+          ));
+  }
 
-        // Render your application if authenticated
+  Widget validAaddressW(AddressModel am) {
+    return Stack(
+      children: [
+        GFListTile(
+          color: Colors.white,
+          avatar: const Icon(MdiIcons.homeImportOutline),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text("Deliver to",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline)),
+            ],
+          ),
+          subTitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(am.name),
+              Text(
+                "${am.house}, ${am.colony}, ${am.pinCodeModel.city}....",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text("Pin code : ${am.pinCode}"),
+              Text("Phone : ${am.phone}"),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 6,
+          right: 15,
+          child: TextButton(
+            child: const Text(
+              "Change",
+              style: TextStyle(color: primaryColor),
+            ),
+            onPressed: () async {
+              await Future.delayed(const Duration(milliseconds: 500));
+              Get.bottomSheet(backgroundColor: Colors.white, listAddresses());
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget listAddresses() {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Text("Select address (or) "),
+              ),
+              TextButton(
+                  onPressed: () async {
+                    await waitMilli();
+                    Get.back();
+                    Get.to(() => const AddressEditScreen(null));
+                  },
+                  child: const Text("Add new")),
+              IconButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  icon: const Icon(MdiIcons.close)),
+            ],
+          ),
+          FirestoreListView<Map<String, dynamic>>(
+              shrinkWrap: true,
+              loadingBuilder: (context) {
+                return const GFLoader();
+              },
+              query: addressMOs.addressCR
+                  .orderBy(addressMOs.updatedTime, descending: true),
+              itemBuilder: ((context, doc) {
+                var am = AddressModel.fromMap(doc.data());
+                am.docRef = doc.reference;
+                return InkWell(
+                  child: Card(
+                    elevation: 4,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(am.name),
+                              Text(
+                                "${am.house}, ${am.colony}, ${am.pinCodeModel.city}....",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text("Pin code : ${am.pinCode}"),
+                              Text("Phone : ${am.phone}"),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: TextButton(
+                              onPressed: () async {
+                                await waitMilli();
+                                Get.to(() => AddressEditScreen(am));
+                              },
+                              child: const Text(
+                                "Edit",
+                                style: TextStyle(color: Colors.blue),
+                              )),
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () async {
+                    await am.docRef!.update({
+                      addressMOs.updatedTime: Timestamp.fromDate(DateTime.now())
+                    });
+                    Get.back();
+                  },
+                );
+              })),
+        ],
+      ),
+    );
+  }
+
+  Widget latestAddressW() {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: addressMOs.addressCR
+            .orderBy(addressMOs.updatedTime, descending: true)
+            .limit(1)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return waitingW();
+          }
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            var am = AddressModel.fromMap(snapshot.data!.docs.first.data());
+            return validAaddressW(am);
+          }
+          return addAddressW();
+        });
+  }
+
+  Widget addAddressW() {
+    return GFListTile(
+      color: Colors.white,
+      avatar: const Icon(MdiIcons.homePlus, color: Colors.blue),
+      title: const Text("No address found to deliver"),
+      subTitle: const Text("Click to Add delivery address"),
+      onTap: () async {
+        await Future.delayed(const Duration(milliseconds: 500));
+        Get.to(() => const AddressEditScreen(null));
       },
+    );
+  }
+
+  Widget waitingW() {
+    return const GFListTile(
+      title: GFLoader(type: GFLoaderType.circle),
     );
   }
 }

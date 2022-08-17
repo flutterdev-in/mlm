@@ -1,6 +1,5 @@
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -13,97 +12,93 @@ class PrimeHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Prime Login Page"), centerTitle: true),
+      appBar: AppBar(title: const Text("Prime member Page"), centerTitle: true),
       drawer: Drawer(
         // backgroundColor: Colors.pink.shade100,
         width: Get.width - 50,
         child: drawerItems(),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 50,
-              width: Get.width,
-              child: const Expanded(
-                child: Card(
-                    child: Center(
-                  child: Text("ADVAITAUNNATHI",
-                      style: TextStyle(
-                          color: primaryColor, fontWeight: FontWeight.bold)),
-                )),
-              ),
-            ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              TextButton(onPressed: ()async{
+      body: ListView(
+        children: [
+          SizedBox(
+            height: 50,
+            width: Get.width,
+            child: const Card(
+                child: Center(
+              child: Text("ADVAITAUNNATHI",
+                  style: TextStyle(
+                      color: primaryColor, fontWeight: FontWeight.bold)),
+            )),
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            TextButton(
+                onPressed: () async {
+                  await addDummyProductsToFire();
+                },
+                child: const Text("BUY")),
+            const Text("|"),
+            TextButton(onPressed: () {}, child: const Text("SELL")),
+            const Text("|"),
+            TextButton(onPressed: () {}, child: const Text("REFFER")),
+          ]),
+          CarouselSlider.builder(
+            options: CarouselOptions(
+              enlargeStrategy: CenterPageEnlargeStrategy.height,
+              height: 130.0,
+              viewportFraction: 0.7,
 
-              await  addDummyProductsToFire();
-           
-          }, child: const Text("BUY")),
-              const Text("|"),
-              TextButton(onPressed: () {}, child: const Text("SELL")),
-              const Text("|"),
-              TextButton(onPressed: () {}, child: const Text("REFFER")),
-            ]),
-            CarouselSlider.builder(
-              options: CarouselOptions(
-                enlargeStrategy: CenterPageEnlargeStrategy.height,
-                height: 130.0,
-                viewportFraction: 0.7,
-
-                autoPlay: true,
-                enlargeCenterPage: true,
-                autoPlayAnimationDuration: const Duration(milliseconds: 600),
-                // padEnds: false,
-                // clipBehavior: Clip.antiAlias,
-              ),
-              itemCount: 8,
-              itemBuilder:
-                  (BuildContext context, int itemIndex, int pageViewIndex) =>
-                      Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                color: Colors.orange.shade100,
-                child: Center(child: Text(itemIndex.toString())),
-              ),
+              autoPlay: true,
+              enlargeCenterPage: true,
+              autoPlayAnimationDuration: const Duration(milliseconds: 600),
+              // padEnds: false,
+              // clipBehavior: Clip.antiAlias,
             ),
-            const SizedBox(height: 20),
-            Container(
-              height: 150,
-              width: 200,
-              color: Colors.green.shade200,
-              child: const Center(
-                  child: Text("Notice\nBoard", textScaleFactor: 2)),
+            itemCount: 8,
+            itemBuilder:
+                (BuildContext context, int itemIndex, int pageViewIndex) =>
+                    Container(
+              margin: const EdgeInsets.symmetric(horizontal: 5),
+              color: Colors.orange.shade100,
+              child: Center(child: Text(itemIndex.toString())),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GridView.count(
-                physics: const ClampingScrollPhysics(),
-                shrinkWrap: true,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                crossAxisCount: 2,
-                children: [
-                  Container(
-                      color: Colors.purple.shade100,
-                      child: const GridTile(
-                          child: Center(child: Text("product")))),
-                  Container(
-                      color: Colors.purple.shade100,
-                      child: const GridTile(
-                          child: Center(child: Text("product")))),
-                  Container(
-                      color: Colors.purple.shade100,
-                      child: const GridTile(
-                          child: Center(child: Text("product")))),
-                  Container(
-                      color: Colors.purple.shade100,
-                      child: const GridTile(
-                          child: Center(child: Text("product")))),
-                ],
-              ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 150,
+            width: 200,
+            color: Colors.green.shade200,
+            child:
+                const Center(child: Text("Notice\nBoard", textScaleFactor: 2)),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.count(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              crossAxisCount: 2,
+              children: [
+                Container(
+                    color: Colors.purple.shade100,
+                    child:
+                        const GridTile(child: Center(child: Text("product")))),
+                Container(
+                    color: Colors.purple.shade100,
+                    child:
+                        const GridTile(child: Center(child: Text("product")))),
+                Container(
+                    color: Colors.purple.shade100,
+                    child:
+                        const GridTile(child: Center(child: Text("product")))),
+                Container(
+                    color: Colors.purple.shade100,
+                    child:
+                        const GridTile(child: Center(child: Text("product")))),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

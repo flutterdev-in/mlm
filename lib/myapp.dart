@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '_bottom_navigation_bar.dart';
 import 'dart/colors.dart';
+import 'shopping/shopping_screen_home_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -31,10 +32,10 @@ class MyApp extends StatelessWidget {
       // initialRoute: "/",.
       // getPages: AppRoutes.routes,
       home: // const MyHomePage0(),
-          const BottomBarWithBody(),
+          // const BottomBarWithBody(),
       // const Company(),
       // const PrimeScreenHomePage(),
-      // const ShoppingScreenHomePage(),
+      const ShoppingScreenHomePage(),
     );
   }
 }

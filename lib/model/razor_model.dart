@@ -17,22 +17,23 @@ class PaymentModel {
 
   Map<String, dynamic> toMap() {
     return {
-      pmos.orderID: orderID,
-      pmos.paymentID: paymentID,
-      pmos.paymentTime:
+      paymentMOs.orderID: orderID,
+      paymentMOs.paymentID: paymentID,
+      paymentMOs.paymentTime:
           paymentTime != null ? Timestamp.fromDate(paymentTime!) : null,
     };
   }
 
   factory PaymentModel.fromMap(Map<String, dynamic> payMap) {
     return PaymentModel(
-        orderID: payMap[pmos.orderID],
-        paymentTime: payMap[pmos.paymentTime]?.toDate(),
-        paymentID: payMap[pmos.paymentID]);
+      orderID: payMap[paymentMOs.orderID],
+      paymentTime: payMap[paymentMOs.paymentTime]?.toDate(),
+      paymentID: payMap[paymentMOs.paymentID],
+    );
   }
 }
 
-PaymentModelObjects pmos = PaymentModelObjects();
+PaymentModelObjects paymentMOs = PaymentModelObjects();
 
 class PaymentModelObjects {
   final orderID = "orderID";
@@ -40,6 +41,7 @@ class PaymentModelObjects {
   final paymentID = "paymentID";
   final razorKey = "rzp_test_hRloZF3oVbYuXn";
   final payment = "payment";
+  final paymentStatus = "paymentStatus";
   String refTc = "";
   final paymentDR =
       authUserCR.doc(fireUser()?.uid).collection("docs").doc("payment");
@@ -47,7 +49,7 @@ class PaymentModelObjects {
   final amount = 100000;
   final razorpay = Razorpay();
 
-  void openRazor(String orderId) {
+  void openRazor(String orderId, String? phone) {
     razorpay.open({
       'key': 'rzp_test_hRloZF3oVbYuXn',
       'amount': 100000, //in the smallest currency sub-unit.
@@ -56,13 +58,13 @@ class PaymentModelObjects {
       // 'description': 'Fine T-Shirt',
       // 'timeout': 60, // in seconds
       'prefill': {
-        'contact': fireUser()?.phoneNumber ?? '',
+        'contact': phone ?? fireUser()?.phoneNumber ?? '',
         'email': fireUser()?.email ?? ''
       }
     });
   }
 
-  Future<void> razorOder() async {
+  Future<void> razorOder(String? phone) async {
     if (fireUser() != null) {
       String? orderID;
 
@@ -77,7 +79,7 @@ class PaymentModelObjects {
       orderID = paymentDS1.data()!["orderID"];
 
       if (orderID != null) {
-        openRazor(orderID);
+        openRazor(orderID,phone);
       }
     }
   }
@@ -106,4 +108,27 @@ class PaymentModelObjects {
       Get.snackbar("Payment Error", "Please try again");
     }
   }
+
+  Future<bool> isPaid() async {
+    bool? isTrue = await paymentDR.get().then((ds) async {
+      if (ds.exists && ds.data() != null) {
+        var pm = PaymentModel.fromMap(ds.data()!);
+        if (pm.paymentID != null) {
+          return true;
+        }
+      }
+      return null;
+    });
+    return isTrue ?? false;
+  }
+}
+
+PaymentStatusMOs paymentStatusMOs = PaymentStatusMOs();
+
+class PaymentStatusMOs {
+  final created = 'created';
+  final authorized = 'authorized';
+  final captured = 'captured';
+  final refunded = 'refunded';
+  final failed = 'failed';
 }

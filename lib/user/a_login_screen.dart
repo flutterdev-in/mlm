@@ -1,4 +1,3 @@
-import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,63 +16,51 @@ class GoogleLoginView extends StatelessWidget {
   Widget build(BuildContext context) {
     var isPressed = false.obs;
     return Scaffold(
-      body: Container(
-        color: primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-                height: Get.height * 0.5,
-                child: const Center(child: Text("Please login"))),
-            SizedBox(
-              height: Get.height * 0.3,
-              child: Center(
-                child: InkWell(
-                  child: Obx(() => Card(
-                        color: Colors.black12,
-                        elevation: isPressed.value ? 0 : 4,
-                        margin: const EdgeInsets.only(left: 16, right: 16),
-                        child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Row(
-                            children: const [
-                              SizedBox(width: 5),
-                              Icon(MdiIcons.google),
-                              Text(
-                                "  Continue with Google",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 18,
-                                    color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )),
-                  onTap: () async {
-                    isPressed.value = true;
-                    await Future.delayed(const Duration(milliseconds: 150));
-                    isPressed.value = false;
-                    await login();
-                  },
+      appBar: AppBar(title: const Text("Login")),
+      body: Center(
+          child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: () async {
+            isPressed.value = true;
+            await Future.delayed(const Duration(milliseconds: 150));
+            isPressed.value = false;
+            await googleLoginFunction();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: const [
+                SizedBox(width: 5),
+                Icon(MdiIcons.google),
+                Text(
+                  "  Continue with Google",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 18,
+                      color: Colors.white),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      )
+
+          ),
     );
   }
+}
 
-  Future<void> login() async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+Future<void> googleLoginFunction() async {
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
-    GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+  GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
-    try {
+  try {
+    if (googleSignInAccount != null) {
       GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+          await googleSignInAccount.authentication;
 
       OAuthCredential oAuthCredential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
@@ -93,8 +80,8 @@ class GoogleLoginView extends StatelessWidget {
       });
 
       Get.back();
-    } catch (error) {
-      Get.snackbar("Error while login", "Please try again");
     }
+  } catch (error) {
+    Get.snackbar("Error while login", "Please try again");
   }
 }
