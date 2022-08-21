@@ -58,13 +58,13 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
                 ),
               ],
             ),
-            drawer: (snapshot.hasData)
-                ? Drawer(
-                    // backgroundColor: Colors.pink.shade100,
-                    width: Get.width - 50,
-                    child: drawerItems(),
-                  )
-                : null,
+            // drawer: (snapshot.hasData)
+            //     ? Drawer(
+            //         // backgroundColor: Colors.pink.shade100,
+            //         width: Get.width - 50,
+            //         child: drawerItems(),
+            //       )
+            //     : null,
             body: ListView(
               children: const [
                 OffersCarousel(),

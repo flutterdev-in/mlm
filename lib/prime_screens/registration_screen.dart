@@ -7,7 +7,6 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PrimeRegistrationScreen extends StatefulWidget {
   const PrimeRegistrationScreen({Key? key}) : super(key: key);
@@ -18,28 +17,25 @@ class PrimeRegistrationScreen extends StatefulWidget {
 }
 
 class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
-  var sfx = false.obs;
-
-  String interestedIn = "Marketing";
+  var interestedIn = "Marketing".obs;
 
   @override
   void initState() {
-    paymentMOs.razorpay
-        .on(Razorpay.EVENT_PAYMENT_SUCCESS, paymentMOs.onSuccess);
-    paymentMOs.razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, paymentMOs.onError);
+    regMOs.razorInIt();
     super.initState();
   }
 
   @override
   void dispose() {
-    paymentMOs.razorpay.clear();
-    sfx.value = false;
     phoneNumber = null;
+    refererID.value = "";
     firstName = fireUser()?.displayName?.split(" ").last ?? "";
     surName = fireUser()?.displayName?.split(" ").first ?? "";
     super.dispose();
   }
 
+  // var sfx = false.obs;
+  var refererID = "".obs;
   String firstName = fireUser()?.displayName?.split(" ").last ?? "";
   String surName = fireUser()?.displayName?.split(" ").first ?? "";
   String? phoneNumber;
@@ -93,7 +89,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
     //
     void vld(String text) {
-      paymentMOs.refTc = text;
+      regMOs.refTc = text;
       formKey.currentState?.validate().toString();
     }
 
@@ -102,25 +98,26 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
       child: Obx(() => TextFormField(
             inputFormatters: [UpperCaseTextFormatter()],
             decoration: InputDecoration(
-              errorStyle: TextStyle(color: sfx.value ? Colors.green : null),
+              errorStyle: TextStyle(
+                  color: refererID.value.isNotEmpty ? Colors.green : null),
               icon: const Icon(MdiIcons.accountMultiplePlus),
               hintText: 'Please enter your referer ID',
               labelText: 'Reference ID',
-              suffixIcon: sfx.value
+              suffixIcon: refererID.value.isNotEmpty
                   ? const Icon(MdiIcons.checkCircle, color: Colors.green)
                   : null,
             ),
             maxLength: 8,
             validator: (value) {
-              return paymentMOs.refTc;
+              return regMOs.refTc;
             },
             onChanged: (v) async {
+              refererID.value = '';
               if (v.isEmpty) {
-                sfx.value = false;
                 vld('');
               } else if (v == "AU0001AA") {
                 vld("Success\nYour referer is Advaita Unnathi");
-                sfx.value = true;
+                refererID.value = "AU0001AA";
               } else if (v.contains(RegExp("^AU[0-9]{4}[A-Z]{2}"))) {
                 vld("Please wait....");
                 EasyDebounce.debounce('d', const Duration(seconds: 2),
@@ -132,21 +129,18 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                     if (qs.docs.isEmpty ||
                         qs.docs.first.reference.id == fireUser()?.uid) {
                       vld("Ref ID, doesn't exist,\nPlease enter valid reference ID");
-                      sfx.value = false;
                     } else {
                       var um = UserModel.fromMap(qs.docs.first.data());
                       if (um.memberPosition != null) {
                         vld("Success\nYour referer is ${um.profileName}");
-                        sfx.value = true;
+                        refererID.value = um.profileName;
                       } else {
                         vld("Your referer ${um.profileName} was not a prime member\nPlease enter valid reference ID");
-                        sfx.value = false;
                       }
                     }
                   });
                 });
               } else {
-                sfx.value = false;
                 vld("Please enter valid reference ID");
               }
             },
@@ -155,8 +149,6 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   }
 
   Widget dropDown() {
-    var dv = 'Marketing'.obs;
-
     return Row(
       children: [
         const Expanded(flex: 1, child: Text("Interested in")),
@@ -168,7 +160,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                 //     // enabledBorder: OutlineInputBorder(),
                 //     ),
                 borderRadius: BorderRadius.circular(12),
-                value: dv.value,
+                value: interestedIn.value,
                 items: [
                   'Marketing',
                   'Stock Point',
@@ -179,7 +171,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                         DropdownMenuItem<String>(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (v) {
-                  dv.value = v.toString();
+                  interestedIn.value = v.toString();
                 },
               )),
         ),
@@ -195,8 +187,19 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             onPressed: () async {
               if (isAllTrue()) {
                 isLoading.value = true;
-                await paymentMOs.razorOder(phoneNumber);
-                await Future.delayed(const Duration(seconds: 3));
+                await authUserCR
+                    .doc(fireUser()?.uid)
+                    .update({umos.phoneNumber: phoneNumber});
+                await regMOs.razorOder(RegistrationModel(
+                    orderID: null,
+                    isPaid: null,
+                    refMemberId:
+                        refererID.value.isNotEmpty ? refererID.value : null,
+                    phoneNumber: phoneNumber,
+                    name: "$firstName $surName",
+                    interestedIn: interestedIn.value,
+                    userUID: fireUser()!.uid));
+
                 isLoading.value = false;
               } else {
                 bottomSheet();
@@ -284,7 +287,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
     if ((phoneNumber?.contains(RegExp(r'^[0-9]{10}$')) ?? false) &&
         firstName.length > 4 &&
         surName.isNotEmpty &&
-        sfx.value) {
+        refererID.value.isNotEmpty) {
       return true;
     } else {
       return false;
@@ -313,7 +316,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
               padding: EdgeInsets.all(3.0),
               child: Text("Please enter valid phone number"),
             ),
-          if (!sfx.value)
+          if (refererID.value.isEmpty)
             const Padding(
               padding: EdgeInsets.all(3.0),
               child: Text("Please enter valid reference ID"),

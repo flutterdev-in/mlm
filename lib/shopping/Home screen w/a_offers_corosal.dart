@@ -16,7 +16,6 @@ class OffersCarousel extends StatelessWidget {
             enlargeStrategy: CenterPageEnlargeStrategy.height,
             height: 110.0,
             viewportFraction: 0.7,
-
             autoPlay: true,
             enlargeCenterPage: true,
             autoPlayAnimationDuration: const Duration(milliseconds: 600),

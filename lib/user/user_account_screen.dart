@@ -1,5 +1,6 @@
 import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
+import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/model/razor_model.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
@@ -12,8 +13,19 @@ import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class UserAccountScreen extends StatelessWidget {
+class UserAccountScreen extends StatefulWidget {
   const UserAccountScreen({Key? key}) : super(key: key);
+
+  @override
+  State<UserAccountScreen> createState() => _UserAccountScreenState();
+}
+
+class _UserAccountScreenState extends State<UserAccountScreen> {
+  @override
+  void initState() {
+    regMOs.razorInIt();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +54,24 @@ class UserAccountScreen extends StatelessWidget {
             avatar: const Icon(MdiIcons.accountGroupOutline),
             title: TextButton(
                 onPressed: () async {
-                  waitMilli(200);
-                  if (await paymentMOs.isPaid()) {
-                    Get.to(() => const PrimeHomeScreen());
-                  } else {
+                  isLoading.value = true;
+                  var rm = await regMOs.checkAndGetRM();
+
+                  if (rm?.orderID == null || rm?.refMemberId == null) {
                     Get.to(() => const PrimeRegistrationScreen());
+                    isLoading.value = false;
+                  } else if (rm?.isPaid == true && rm?.refMemberId != null) {
+                    await umos.checkAndAddPos(rm!.refMemberId!);
+                    Get.to(() =>  PrimeHomeScreen());
+                    isLoading.value = false;
+                  } else {
+                    bottomSheet(rm!);
+                    isLoading.value = false;
                   }
                 },
-                child: const Text("Prime")),
+                child: Obx(() => isLoading.value
+                    ? const Text("Loading....")
+                    : const Text("Prime"))),
           ),
           GFListTile(
             avatar: const Icon(MdiIcons.logout),
@@ -86,5 +108,35 @@ class UserAccountScreen extends StatelessWidget {
             subTitleText: "    ",
           );
         });
+  }
+
+  void bottomSheet(RegistrationModel rm) {
+    Get.bottomSheet(Container(
+      color: Colors.white,
+      constraints: const BoxConstraints(minHeight: 150, maxHeight: 250),
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+                "Your previous payment was unsuccessfull, retry or create new Order"),
+          ),
+          TextButton(
+              onPressed: () {
+                Get.back();
+                regMOs.razorOder(rm);
+              },
+              child: const Text("Retry previous order")),
+          TextButton(
+              onPressed: () async {
+                Get.back();
+                await rm.docRef?.delete();
+                Get.to(() => const PrimeRegistrationScreen());
+              },
+              child: const Text("Create new order")),
+          const SizedBox(height: 50),
+        ],
+      ),
+    ));
   }
 }

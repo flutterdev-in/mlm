@@ -1,10 +1,16 @@
 import 'package:advaithaunnathi/dart/colors.dart';
+import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/dart/repeatFunctions.dart';
+import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
+import 'package:advaithaunnathi/prime_screens/wallet/_wallet_home_screen.dart';
+import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../model/product_model.dart';
+import '../model/user_model.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
   const PrimeHomeScreen({Key? key}) : super(key: key);
@@ -138,7 +144,10 @@ class PrimeHomeScreen extends StatelessWidget {
                     ],
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    waitMilli(120);
+                    Get.to(() => const WalletHomeScreen());
+                  },
                   child: Row(
                     children: const [
                       Icon(MdiIcons.wallet),
@@ -147,7 +156,17 @@ class PrimeHomeScreen extends StatelessWidget {
                     ],
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await authUserCR
+                        .doc(fireUser()?.uid)
+                        .get()
+                        .then((ds) async {
+                      if (ds.exists && ds.data() != null) {
+                        var um = UserModel.fromMap(ds.data()!);
+                        Get.to(() => DirectIncomeHistory(um));
+                      }
+                    });
+                  },
                   child: Row(
                     children: const [
                       Icon(MdiIcons.accountGroup),
@@ -189,6 +208,18 @@ class PrimeHomeScreen extends StatelessWidget {
                       Icon(MdiIcons.trainCar),
                       SizedBox(width: 10),
                       Text("Tours"),
+                    ],
+                  )),
+              TextButton(
+                  onPressed: () async {
+                    await waitMilli();
+                    Get.offAll(() => const ShoppingScreenHomePage());
+                  },
+                  child: Row(
+                    children: const [
+                      Icon(MdiIcons.shopping),
+                      SizedBox(width: 10),
+                      Text("Shopping"),
                     ],
                   )),
             ],

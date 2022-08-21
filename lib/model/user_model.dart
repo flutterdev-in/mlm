@@ -145,4 +145,24 @@ class UserModelObjects {
       userBox.delete(boxStrings.userUID);
     }
   }
+
+  Future<void> addPosition(String refID) async {
+    HttpsCallable addPos =
+        FirebaseFunctions.instance.httpsCallable('addPosition');
+    await addPos.call(<String, dynamic>{
+      "uid": fireUser()?.uid,
+      "refMemberId": refID,
+    });
+  }
+
+  Future<void> checkAndAddPos(String refID) async {
+    await authUserCR.doc(fireUser()?.uid).get().then((ds) async {
+      if (ds.exists && ds.data() != null) {
+        var um = UserModel.fromMap(ds.data()!);
+        if (um.memberPosition == null) {
+          await addPosition(refID);
+        }
+      }
+    });
+  }
 }
