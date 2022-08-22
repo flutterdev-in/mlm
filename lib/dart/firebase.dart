@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../hive/hive_boxes.dart';
@@ -19,8 +20,10 @@ User? fireUser() {
 
 Future<void> fireLogOut() async {
   await Future.delayed(const Duration(milliseconds: 300));
+  if (!kIsWeb) {
+    await GoogleSignIn().disconnect();
+  }
 
-  await GoogleSignIn().disconnect();
   await FirebaseAuth.instance.signOut();
   userCartCR.value = nonAuthUserCR.doc(userBoxUID()).collection(cart);
 }

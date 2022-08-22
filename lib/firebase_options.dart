@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:133678038414:web:af423b004e2162cd09b8df',
     messagingSenderId: '133678038414',
     projectId: 'mlm-app-vijayawada',
-    authDomain: 'mlm-app-vijayawada.firebaseapp.com',
+    authDomain: 'myshopau.com',
     storageBucket: 'mlm-app-vijayawada.appspot.com',
     measurementId: 'G-WN439VLRSR',
   );

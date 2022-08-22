@@ -1,4 +1,3 @@
-import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/a_offers_corosal.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/b_shopping_cat_w.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../custom widgets/bottom_bar_login.dart';
 import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
 import '../fcm.dart';
@@ -78,6 +78,10 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
                 SizedBox(height: 10),
                 ProductsGridList(),
                 SizedBox(height: 60),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("V_1.0.2\nDated 23 Aug 2022, 12:05am"),
+                ),
               ],
             ),
           );
