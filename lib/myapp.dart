@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       ),
 
       // initialBinding: HomeBinding(),
-      title: 'Advaita Unnathi',
+      title: 'My Shop AU',
       // initialRoute: "/",.
       // getPages: AppRoutes.routes,
       home: // const MyHomePage0(),

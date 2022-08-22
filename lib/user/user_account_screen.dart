@@ -6,6 +6,7 @@ import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
 import 'package:advaithaunnathi/prime_screens/registration_screen.dart';
 import 'package:advaithaunnathi/shopping/addresses/list_addresses_widget.dart';
+import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,12 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
   void initState() {
     regMOs.razorInIt();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    isLoading.value = false;
+    super.dispose();
   }
 
   @override
@@ -62,7 +69,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                     isLoading.value = false;
                   } else if (rm?.isPaid == true && rm?.refMemberId != null) {
                     await umos.checkAndAddPos(rm!.refMemberId!);
-                    Get.to(() =>  PrimeHomeScreen());
+                    Get.to(() => const PrimeHomeScreen());
                     isLoading.value = false;
                   } else {
                     bottomSheet(rm!);
@@ -75,8 +82,14 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
           ),
           GFListTile(
             avatar: const Icon(MdiIcons.logout),
-            title: const Text("Logout"),
-            onTap: () => fireLogOut(),
+            title:
+                Obx(() => Text(isLoading.value ? "Please wait..." : "Logout")),
+            onTap: () async {
+              isLoading.value = true;
+              await fireLogOut();
+              isLoading.value = false;
+              Get.offAll(() => const ShoppingScreenHomePage());
+            },
           ),
         ],
       ),
@@ -97,7 +110,8 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                     : null,
               ),
               title: Text(um.profileName),
-              subTitleText: "${um.userEmail}\n${um.phoneNumber ?? ''}",
+              subTitleText:
+                  "${um.userEmail}\n${um.phoneNumber ?? ''}\n${um.memberID ?? ''}",
               icon: IconButton(
                   onPressed: () {}, icon: const Icon(MdiIcons.pencilOutline)),
             );
@@ -118,12 +132,10 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text(
-                "Your previous payment was unsuccessfull, retry or create new Order"),
+            child: Text("Your previous payment was unsuccessfull"),
           ),
           TextButton(
               onPressed: () {
-                Get.back();
                 regMOs.razorOder(rm);
               },
               child: const Text("Retry previous order")),

@@ -4,6 +4,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
+import 'user_model.dart';
+
+//
 class RegistrationModel {
   String? orderID;
   bool? isPaid;
@@ -53,7 +56,7 @@ RegistrationModelObjects regMOs = RegistrationModelObjects();
 
 class RegistrationModelObjects {
   final orderID = "orderID";
-  final razorKey = "rzp_test_hRloZF3oVbYuXn";
+  final razorKey = "rzp_live_bA3NL5xvgNVCls";
   final payment = "payment";
   final isPaid = "isPaid";
   final refMemberId = "refMemberId";
@@ -73,16 +76,6 @@ class RegistrationModelObjects {
   // }
 
   Future<void> razorOder(RegistrationModel regModel) async {
-    // var paymentDS0 = await paymentDR.get();
-
-    // if (!paymentDS0.exists || paymentDS0.data()!["orderID"] == null) {
-    //   HttpsCallable setOrder =
-    //       FirebaseFunctions.instance.httpsCallable('setOrderID');
-    //   await setOrder.call(<String>[fireUser()!.uid]);
-    // }
-    // var paymentDS1 = await paymentDR.get();
-    // regModel.orderID = paymentDS1.data()!["orderID"];
-
     if (regModel.orderID == null) {
       HttpsCallable getOrderIDf =
           FirebaseFunctions.instance.httpsCallable('createAndGetOrderID');
@@ -96,7 +89,7 @@ class RegistrationModelObjects {
       await paymentDR.set(regModel.toMap(), SetOptions(merge: true));
       Get.back();
       razorpay.open({
-        'key': 'rzp_test_hRloZF3oVbYuXn',
+        'key': razorKey,
         'amount': 100000, //in the smallest currency sub-unit.
         'name': 'Advaita Unnathi',
         'order_id': regModel.orderID, // Generate order_id using Orders API
@@ -112,36 +105,22 @@ class RegistrationModelObjects {
     }
   }
 
-  void razorInIt() {
+  void razorInIt() async {
     razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
-        (PaymentSuccessResponse response) {
-      Get.snackbar("Payment success", "Proceed to prime");
+        (PaymentSuccessResponse response) async {
+      var rm = await checkAndGetRM();
+      if (rm?.isPaid == true && rm?.refMemberId != null) {
+        Get.snackbar("Payment success", "Proceed to prime");
+        await umos.checkAndAddPos(rm!.refMemberId!);
+      } else {
+        Get.snackbar("Fetching payment...", "Proceed to prime");
+      }
     });
     razorpay.on(Razorpay.EVENT_PAYMENT_ERROR,
         (PaymentFailureResponse response) {
       Get.snackbar("Payment Error", "Please try again");
     });
   }
-  // Future<void> onSuccess(PaymentSuccessResponse response) async {
-  //   if (response.paymentId != null) {
-  //     HttpsCallable setOrder =
-  //         FirebaseFunctions.instance.httpsCallable('paymentVerification');
-  //     await setOrder.call(<String, dynamic>{
-  //       "uid": fireUser()!.uid,
-  //       "paymentID": response.paymentId!,
-  //       "refMemberId": refTc,
-  //     });
-
-  //     var paymentDS1 = await paymentDR.get();
-  //     final paymentID = paymentDS1.data()!["paymentID"];
-
-  //     if (paymentID != null) {
-  //       Get.snackbar("Payment Success", "Congrats");
-  //     }
-  //   } else {
-  //     Get.snackbar("Payment Error", "Please try again");
-  //   }
-  // }
 
   Future<RegistrationModel?> checkAndGetRM() async {
     RegistrationModel? rm;
@@ -170,5 +149,3 @@ class RegistrationModelObjects {
     return rm;
   }
 }
-
-

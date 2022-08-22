@@ -51,12 +51,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCBYbzDqGNGKB0_zJOZsRZs5PrF6zux4mQ',
-    appId: '1:133678038414:web:ed058dd28e986fc809b8df',
+    appId: '1:133678038414:web:af423b004e2162cd09b8df',
     messagingSenderId: '133678038414',
     projectId: 'mlm-app-vijayawada',
     authDomain: 'mlm-app-vijayawada.firebaseapp.com',
     storageBucket: 'mlm-app-vijayawada.appspot.com',
-    measurementId: 'G-J2T3GREMRL',
+    measurementId: 'G-WN439VLRSR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

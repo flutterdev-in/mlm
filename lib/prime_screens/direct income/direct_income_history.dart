@@ -1,28 +1,40 @@
+import 'package:advaithaunnathi/custom%20widgets/firestore_listview_builder.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/firestore.dart';
+import 'package:getwidget/getwidget.dart';
 
 import '../../model/user_model.dart';
 
 class DirectIncomeHistory extends StatelessWidget {
   final UserModel um;
-  const DirectIncomeHistory(this.um, {Key? key}) : super(key: key);
+  final bool wantAppBar;
+  const DirectIncomeHistory(this.um, {Key? key, this.wantAppBar = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Wallet income")),
-      body: FirestoreListView<Map<String, dynamic>>(
-          query: authUserCR
-              .where(umos.refMemberId, isEqualTo: um.memberID)
-              .orderBy(umos.memberPosition, descending: false),
-          itemBuilder: (context, snapshot) {
-            var umMem = UserModel.fromMap(snapshot.data());
-            return ListTile(
-              title: Text(umMem.profileName),
-              trailing: const Text("+500"),
-            );
-          }),
+      appBar: wantAppBar ? AppBar(title: const Text("Direct referals")) : null,
+      body: FirestoreListViewBuilder(
+        query: authUserCR
+            .where(umos.refMemberId, isEqualTo: um.memberID)
+            .orderBy(umos.memberPosition, descending: false),
+        builder: (context, snapshot) {
+          var umMem = UserModel.fromMap(snapshot.data());
+          return GFListTile(
+            avatar: GFAvatar(
+                backgroundImage:
+                    CachedNetworkImageProvider(umMem.profilePhotoUrl ?? "")),
+            title: Text(umMem.profileName),
+            icon: const Text("+500"),
+          );
+        },
+        noResultsW: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text("No direct referals you have"),
+        ),
+      ),
     );
   }
 }

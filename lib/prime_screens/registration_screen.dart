@@ -21,7 +21,6 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
   @override
   void initState() {
-    regMOs.razorInIt();
     super.initState();
   }
 
@@ -133,7 +132,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                       var um = UserModel.fromMap(qs.docs.first.data());
                       if (um.memberPosition != null) {
                         vld("Success\nYour referer is ${um.profileName}");
-                        refererID.value = um.profileName;
+                        refererID.value = v;
                       } else {
                         vld("Your referer ${um.profileName} was not a prime member\nPlease enter valid reference ID");
                       }
@@ -187,9 +186,10 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             onPressed: () async {
               if (isAllTrue()) {
                 isLoading.value = true;
-                await authUserCR
-                    .doc(fireUser()?.uid)
-                    .update({umos.phoneNumber: phoneNumber});
+                await authUserCR.doc(fireUser()?.uid).update({
+                  umos.phoneNumber: phoneNumber,
+                  umos.profileName: "$firstName $surName"
+                });
                 await regMOs.razorOder(RegistrationModel(
                     orderID: null,
                     isPaid: null,

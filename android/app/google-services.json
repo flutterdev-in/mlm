@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "133678038414-183a0olop57cqlrajfbm23lous70r61r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.advaithaunnathi",
+            "certificate_hash": "f15663d0988ce1914eb4aa465d140407ee2ba95f"
+          }
+        },
+        {
           "client_id": "133678038414-493oi7hhvac6or5623fckhnsgtqovep1.apps.googleusercontent.com",
           "client_type": 3
         }

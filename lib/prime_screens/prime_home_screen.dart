@@ -1,7 +1,7 @@
 import 'package:advaithaunnathi/dart/colors.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
+import 'package:advaithaunnathi/prime_screens/kyc/kyc_reg_screen.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/_wallet_home_screen.dart';
 import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../model/product_model.dart';
+import '../dart/firebase.dart';
 import '../model/user_model.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
@@ -18,7 +18,7 @@ class PrimeHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Prime member Page"), centerTitle: true),
+      appBar: AppBar(title: const Text("Prime page")),
       drawer: Drawer(
         // backgroundColor: Colors.pink.shade100,
         width: Get.width - 50,
@@ -37,11 +37,7 @@ class PrimeHomeScreen extends StatelessWidget {
             )),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            TextButton(
-                onPressed: () async {
-                  await addDummyProductsToFire();
-                },
-                child: const Text("BUY")),
+            TextButton(onPressed: () {}, child: const Text("BUY")),
             const Text("|"),
             TextButton(onPressed: () {}, child: const Text("SELL")),
             const Text("|"),
@@ -169,22 +165,15 @@ class PrimeHomeScreen extends StatelessWidget {
                   },
                   child: Row(
                     children: const [
-                      Icon(MdiIcons.accountGroup),
-                      SizedBox(width: 10),
-                      Text("Level users"),
-                    ],
-                  )),
-              TextButton(
-                  onPressed: () {},
-                  child: Row(
-                    children: const [
                       Icon(MdiIcons.accountMultiplePlus),
                       SizedBox(width: 10),
                       Text("Direct referrals"),
                     ],
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(() => const KycRegScreen());
+                  },
                   child: Row(
                     children: const [
                       Icon(MdiIcons.shieldCheck),
@@ -193,21 +182,15 @@ class PrimeHomeScreen extends StatelessWidget {
                     ],
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await waitMilli();
+                    Get.offAll(() => const ShoppingScreenHomePage());
+                  },
                   child: Row(
                     children: const [
                       Icon(MdiIcons.cash),
                       SizedBox(width: 10),
                       Text("Redeem AU Coins"),
-                    ],
-                  )),
-              TextButton(
-                  onPressed: () {},
-                  child: Row(
-                    children: const [
-                      Icon(MdiIcons.trainCar),
-                      SizedBox(width: 10),
-                      Text("Tours"),
                     ],
                   )),
               TextButton(

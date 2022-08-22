@@ -1,3 +1,4 @@
+import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -15,6 +16,7 @@ class UserModel {
   String? profilePhotoUrl;
   DateTime? paymentTime;
   int directIncome;
+  String? fcmToken;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   UserModel({
@@ -27,6 +29,7 @@ class UserModel {
     required this.profilePhotoUrl,
     required this.paymentTime,
     required this.directIncome,
+    required this.fcmToken,
     this.docRef,
   });
 
@@ -41,7 +44,10 @@ class UserModel {
       umos.paymentTime:
           paymentTime != null ? Timestamp.fromDate(DateTime.now()) : null,
       umos.directIncome: directIncome,
-      umos.profilePhotoUrl: profilePhotoUrl,
+      unIndexed: {
+        umos.profilePhotoUrl: profilePhotoUrl,
+        boxStrings.fcmToken: fcmToken,
+      }
     };
   }
 
@@ -55,7 +61,12 @@ class UserModel {
       refMemberId: userMap[umos.refMemberId],
       paymentTime: userMap[umos.paymentTime]?.toDate(),
       directIncome: userMap[umos.directIncome] ?? 0,
-      profilePhotoUrl: userMap[umos.profilePhotoUrl],
+      profilePhotoUrl: userMap[unIndexed] != null
+          ? userMap[unIndexed][umos.profilePhotoUrl]
+          : null,
+      fcmToken: userMap[unIndexed] != null
+          ? userMap[unIndexed][boxStrings.fcmToken]
+          : null,
     );
   }
 }
@@ -107,11 +118,6 @@ class UserModelObjects {
     String? userEmail,
     String? refMemberId,
     String? profilePhotoUrl,
-    int? ulp1,
-    int? ulp2,
-    int? ulp3,
-    int? ulp4,
-    int? ulp5,
   }) async {
     Map<String, dynamic> map = {
       umos.memberPosition: memberPosition,
@@ -164,5 +170,44 @@ class UserModelObjects {
         }
       }
     });
+  }
+
+  Future<UserModel?> getUserModel() async {
+    return await authUserCR.doc(fireUser()?.uid).get().then((ds) {
+      if (ds.exists && ds.data() != null) {
+        var um = UserModel.fromMap(ds.data()!);
+        um.docRef = ds.reference;
+        return um;
+      }
+      return null;
+    });
+  }
+
+  DocumentReference<Map<String, dynamic>>? userDR() {
+    if (fireUser() != null) {
+      return authUserCR.doc(fireUser()!.uid);
+    }
+    return null;
+  }
+
+  Future<void> userInit() async {
+    if (fireUser() != null) {
+      await userDR()!.get().then((ds) async {
+        if (!ds.exists || ds.data() == null) {
+          userDR()!.set(UserModel(
+                  memberPosition: null,
+                  profileName: fireUser()?.displayName ?? "",
+                  memberID: null,
+                  userEmail: fireUser()?.email ?? "",
+                  phoneNumber: null,
+                  refMemberId: null,
+                  profilePhotoUrl: fireUser()?.photoURL,
+                  paymentTime: null,
+                  directIncome: 0,
+                  fcmToken: null)
+              .toMap(), SetOptions(merge: true),);
+        }
+      });
+    }
   }
 }

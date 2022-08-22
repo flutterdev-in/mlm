@@ -1,11 +1,10 @@
-import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../hive/hive_boxes.dart';
 import '../model/cart_model.dart';
-import 'const_global_strings.dart';
+import 'const_global_objects.dart';
 
 const authUsers = "authUsers";
 const nonAuthUsers = "nonAuthUsers";

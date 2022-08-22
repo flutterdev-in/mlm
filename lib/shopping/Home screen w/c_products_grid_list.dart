@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/const_global_strings.dart';
+import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/dart/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
@@ -106,7 +106,7 @@ class ProductsGridList extends StatelessWidget {
               },
             );
           }
-          return const CircularProgressIndicator();
+          return const GFLoader();
         });
   }
 

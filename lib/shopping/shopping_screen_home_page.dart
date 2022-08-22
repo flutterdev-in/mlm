@@ -14,7 +14,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
+import '../fcm.dart';
 import '../model/cart_model.dart';
+import '../model/user_model.dart';
 
 class ShoppingScreenHomePage extends StatefulWidget {
   const ShoppingScreenHomePage({Key? key}) : super(key: key);
@@ -26,6 +28,10 @@ class ShoppingScreenHomePage extends StatefulWidget {
 class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
   @override
   void initState() {
+    FCMfunctions.setupInteractedMessage();
+    FCMfunctions.onMessage();
+    FCMfunctions.checkFCMtoken();
+    umos.userInit();
     super.initState();
   }
 
