@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/a_offers_corosal.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/b_shopping_cat_w.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/c_products_grid_list.dart';
@@ -14,12 +14,14 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../custom widgets/bottom_bar_login.dart';
 import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
-import '../fcm.dart';
+import '../hive/hive_boxes.dart';
+import '../services/fcm.dart';
 import '../model/cart_model.dart';
 import '../model/user_model.dart';
 
 class ShoppingScreenHomePage extends StatefulWidget {
-  const ShoppingScreenHomePage({Key? key}) : super(key: key);
+  final bool? isRefferar;
+  const ShoppingScreenHomePage(this.isRefferar, {Key? key}) : super(key: key);
 
   @override
   State<ShoppingScreenHomePage> createState() => _ShoppingScreenHomePageState();
@@ -31,7 +33,13 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
     FCMfunctions.setupInteractedMessage();
     FCMfunctions.onMessage();
     FCMfunctions.checkFCMtoken();
-    umos.userInit();
+    uMOs.userInit();
+    if (widget.isRefferar == true) {
+      servicesBox.put(uMOs.refMemberId, Get.parameters[uMOs.refMemberId]);
+      if (fireUser() != null) {
+        bottomBarLogin();
+      }
+    }
     super.initState();
   }
 
@@ -80,7 +88,7 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
                 SizedBox(height: 60),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("V_1.0.2\nDated 23 Aug 2022, 12:05am"),
+                  child: Text("V_1.0.4\nDated 23 Aug 2022, 02:56pm"),
                 ),
               ],
             ),

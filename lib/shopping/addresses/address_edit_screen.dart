@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/model/pin_code_model.dart';

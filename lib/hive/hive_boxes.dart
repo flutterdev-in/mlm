@@ -21,6 +21,7 @@ BoxStrings boxStrings = BoxStrings();
 class BoxStrings {
   final userUID = "userUID";
   final fcmToken = "fcmToken";
+
 }
 
 //

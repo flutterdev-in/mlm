@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../dart/firebase.dart';
+import '../services/firebase.dart';
 import '../model/user_model.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
@@ -41,7 +41,16 @@ class PrimeHomeScreen extends StatelessWidget {
             const Text("|"),
             TextButton(onPressed: () {}, child: const Text("SELL")),
             const Text("|"),
-            TextButton(onPressed: () {}, child: const Text("REFFER")),
+            TextButton(
+                onPressed: () async {
+                  UserModel? um;
+                  await authUserCR.doc(fireUser()?.uid).get().then((ds) async {
+                    if (ds.exists && ds.data() != null) {
+                      um = UserModel.fromMap(ds.data()!);
+                    }
+                  }).then((value) => uMOs.shareRefLink(um));
+                },
+                child: const Text("REFER")),
           ]),
           CarouselSlider.builder(
             options: CarouselOptions(
@@ -184,7 +193,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.offAll(() => const ShoppingScreenHomePage());
+                    Get.offAll(() => const ShoppingScreenHomePage(null));
                   },
                   child: Row(
                     children: const [
@@ -196,7 +205,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.offAll(() => const ShoppingScreenHomePage());
+                    Get.offAll(() => const ShoppingScreenHomePage(null));
                   },
                   child: Row(
                     children: const [

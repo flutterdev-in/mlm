@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/model/razor_model.dart';
@@ -68,7 +68,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                     Get.to(() => const PrimeRegistrationScreen());
                     isLoading.value = false;
                   } else if (rm?.isPaid == true && rm?.refMemberId != null) {
-                    await umos.checkAndAddPos(rm!.refMemberId!);
+                    await uMOs.checkAndAddPos(rm!.refMemberId!);
                     Get.to(() => const PrimeHomeScreen());
                     isLoading.value = false;
                   } else {
@@ -88,7 +88,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
               isLoading.value = true;
               await fireLogOut();
               isLoading.value = false;
-              Get.offAll(() => const ShoppingScreenHomePage());
+              Get.offAll(() => const ShoppingScreenHomePage(null));
             },
           ),
         ],

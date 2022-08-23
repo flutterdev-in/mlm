@@ -1,5 +1,5 @@
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

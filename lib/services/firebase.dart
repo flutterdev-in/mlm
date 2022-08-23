@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../hive/hive_boxes.dart';
 import '../model/cart_model.dart';
-import 'const_global_objects.dart';
+import '../dart/const_global_objects.dart';
 
 const authUsers = "authUsers";
 const nonAuthUsers = "nonAuthUsers";

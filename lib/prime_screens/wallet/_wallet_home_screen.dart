@@ -1,7 +1,6 @@
 import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
-import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/a_referar_income_history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +78,7 @@ class WalletHomeScreen extends StatelessWidget {
                     color: Colors.blue.shade100,
                     title: const Text("Promotional benefits"),
                     icon: StreamSingleQueryBuilder(
-                        query: authUserCR.orderBy(umos.memberPosition,
+                        query: authUserCR.orderBy(uMOs.memberPosition,
                             descending: true),
                         docBuilder: (context, snapshot) {
                           var umLast = UserModel.fromMap(snapshot.data());
@@ -100,7 +99,7 @@ class WalletHomeScreen extends StatelessWidget {
 }
 
 void refWithdrawBS() async {
-  var um = await umos.getUserModel();
+  var um = await uMOs.getUserModel();
   if (um == null) {
     Get.snackbar(
         "Network error", "Error while fetching data, please try again");

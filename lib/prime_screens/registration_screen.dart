@@ -1,9 +1,9 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
+import 'package:advaithaunnathi/hive/hive_boxes.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
-import 'package:advaithaunnathi/dart/text_formatters.dart';
 import 'package:advaithaunnathi/model/razor_model.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
-import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -27,17 +27,20 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   @override
   void dispose() {
     phoneNumber = null;
-    refererID.value = "";
+    isRefValid = false;
+
+    refererID = "";
     firstName = fireUser()?.displayName?.split(" ").last ?? "";
     surName = fireUser()?.displayName?.split(" ").first ?? "";
     super.dispose();
   }
 
   // var sfx = false.obs;
-  var refererID = "".obs;
+  var refererID = (servicesBox.get(uMOs.refMemberId) ?? "").toString();
   String firstName = fireUser()?.displayName?.split(" ").last ?? "";
   String surName = fireUser()?.displayName?.split(" ").first ?? "";
   String? phoneNumber;
+  bool isRefValid = false;
 
   //
   @override
@@ -52,7 +55,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             children: [
               names(),
               phone(),
-              refID(),
+              refIdW(refererID),
+              // refID(),
               const SizedBox(height: 10),
               dropDown(),
               const SizedBox(height: 20),
@@ -68,7 +72,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
   Future<String> checkMember(String id) async {
     var k = await authUserCR
-        .where(umos.memberID, isEqualTo: id)
+        .where(uMOs.memberID, isEqualTo: id)
         .limit(1)
         .get()
         .then((qs) {
@@ -83,69 +87,71 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
     return k;
   }
 
-  Widget refID() {
-    var formKey = GlobalKey<FormState>();
+  // Widget refID() {
+  //   var formKey = GlobalKey<FormState>();
 
-    //
-    void vld(String text) {
-      regMOs.refTc = text;
-      formKey.currentState?.validate().toString();
-    }
+  //   //
+  //   void vld(String text) {
+  //     regMOs.refTc = text;
+  //     formKey.currentState?.validate().toString();
+  //   }
 
-    return Form(
-      key: formKey,
-      child: Obx(() => TextFormField(
-            inputFormatters: [UpperCaseTextFormatter()],
-            decoration: InputDecoration(
-              errorStyle: TextStyle(
-                  color: refererID.value.isNotEmpty ? Colors.green : null),
-              icon: const Icon(MdiIcons.accountMultiplePlus),
-              hintText: 'Please enter your referer ID',
-              labelText: 'Reference ID',
-              suffixIcon: refererID.value.isNotEmpty
-                  ? const Icon(MdiIcons.checkCircle, color: Colors.green)
-                  : null,
-            ),
-            maxLength: 8,
-            validator: (value) {
-              return regMOs.refTc;
-            },
-            onChanged: (v) async {
-              refererID.value = '';
-              if (v.isEmpty) {
-                vld('');
-              } else if (v == "AU0001AA") {
-                vld("Success\nYour referer is Advaita Unnathi");
-                refererID.value = "AU0001AA";
-              } else if (v.contains(RegExp("^AU[0-9]{4}[A-Z]{2}"))) {
-                vld("Please wait....");
-                EasyDebounce.debounce('d', const Duration(seconds: 2),
-                    () async {
-                  await authUserCR
-                      .where(umos.memberID, isEqualTo: v)
-                      .get()
-                      .then((qs) {
-                    if (qs.docs.isEmpty ||
-                        qs.docs.first.reference.id == fireUser()?.uid) {
-                      vld("Ref ID, doesn't exist,\nPlease enter valid reference ID");
-                    } else {
-                      var um = UserModel.fromMap(qs.docs.first.data());
-                      if (um.memberPosition != null) {
-                        vld("Success\nYour referer is ${um.profileName}");
-                        refererID.value = v;
-                      } else {
-                        vld("Your referer ${um.profileName} was not a prime member\nPlease enter valid reference ID");
-                      }
-                    }
-                  });
-                });
-              } else {
-                vld("Please enter valid reference ID");
-              }
-            },
-          )),
-    );
-  }
+  //   return Form(
+  //     key: formKey,
+  //     child: Obx(() => TextFormField(
+  //           inputFormatters: [UpperCaseTextFormatter()],
+  //           readOnly: true,
+  //           controller: TextEditingController(text: refererID.value),
+  //           decoration: InputDecoration(
+  //             errorStyle: TextStyle(
+  //                 color: refererID.value.isNotEmpty ? Colors.green : null),
+  //             icon: const Icon(MdiIcons.accountMultiplePlus),
+  //             hintText: 'Please enter your referer ID',
+  //             labelText: 'Reference ID',
+  //             suffixIcon: refererID.value.isNotEmpty
+  //                 ? const Icon(MdiIcons.checkCircle, color: Colors.green)
+  //                 : null,
+  //           ),
+  //           maxLength: 8,
+  //           validator: (value) {
+  //             return regMOs.refTc;
+  //           },
+  //           onChanged: (v) async {
+  //             refererID.value = '';
+  //             if (v.isEmpty) {
+  //               vld('');
+  //             } else if (v == "AU0001AA") {
+  //               vld("Success\nYour referer is Advaita Unnathi");
+  //               refererID.value = "AU0001AA";
+  //             } else if (v.contains(RegExp("^AU[0-9]{4}[A-Z]{2}"))) {
+  //               vld("Please wait....");
+  //               EasyDebounce.debounce('d', const Duration(seconds: 2),
+  //                   () async {
+  //                 await authUserCR
+  //                     .where(uMOs.memberID, isEqualTo: v)
+  //                     .get()
+  //                     .then((qs) {
+  //                   if (qs.docs.isEmpty ||
+  //                       qs.docs.first.reference.id == fireUser()?.uid) {
+  //                     vld("Ref ID, doesn't exist,\nPlease enter valid reference ID");
+  //                   } else {
+  //                     var um = UserModel.fromMap(qs.docs.first.data());
+  //                     if (um.memberPosition != null) {
+  //                       vld("Success\nYour referer is ${um.profileName}");
+  //                       refererID.value = v;
+  //                     } else {
+  //                       vld("Your referer ${um.profileName} was not a prime member\nPlease enter valid reference ID");
+  //                     }
+  //                   }
+  //                 });
+  //               });
+  //             } else {
+  //               vld("Please enter valid reference ID");
+  //             }
+  //           },
+  //         )),
+  //   );
+  // }
 
   Widget dropDown() {
     return Row(
@@ -187,14 +193,13 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
               if (isAllTrue()) {
                 isLoading.value = true;
                 await authUserCR.doc(fireUser()?.uid).update({
-                  umos.phoneNumber: phoneNumber,
-                  umos.profileName: "$firstName $surName"
+                  uMOs.phoneNumber: phoneNumber,
+                  uMOs.profileName: "$firstName $surName"
                 });
                 await regMOs.razorOder(RegistrationModel(
                     orderID: null,
                     isPaid: null,
-                    refMemberId:
-                        refererID.value.isNotEmpty ? refererID.value : null,
+                    refMemberId: refererID,
                     phoneNumber: phoneNumber,
                     name: "$firstName $surName",
                     interestedIn: interestedIn.value,
@@ -287,7 +292,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
     if ((phoneNumber?.contains(RegExp(r'^[0-9]{10}$')) ?? false) &&
         firstName.length > 4 &&
         surName.isNotEmpty &&
-        refererID.value.isNotEmpty) {
+        refererID.contains(RegExp("^AU[0-9]{4}[A-Z]{2}")) &&
+        isRefValid) {
       return true;
     } else {
       return false;
@@ -303,9 +309,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
         children: [
           if (firstName.length < 4)
             const Padding(
-              padding: EdgeInsets.all(3.0),
-              child: Text("Please enter valid First Name"),
-            ),
+                padding: EdgeInsets.all(3.0),
+                child: Text("Please enter valid First Name")),
           if (surName.isEmpty)
             const Padding(
               padding: EdgeInsets.all(3.0),
@@ -316,13 +321,58 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
               padding: EdgeInsets.all(3.0),
               child: Text("Please enter valid phone number"),
             ),
-          if (refererID.value.isEmpty)
+          if (!(refererID.contains(RegExp("^AU[0-9]{4}[A-Z]{2}")) &&
+              isRefValid))
             const Padding(
               padding: EdgeInsets.all(3.0),
-              child: Text("Please enter valid reference ID"),
+              child: Text(
+                  "Refferar is not a prime member, please get valid refferar link"),
             ),
         ],
       ),
     ));
+  }
+
+  Widget refIdW(String refID) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Icon(MdiIcons.accountGroup),
+            const SizedBox(
+              width: 15,
+            ),
+            Expanded(
+              child: TextField(
+                  readOnly: true,
+                  controller: TextEditingController(text: refID),
+                  decoration: const InputDecoration(
+                    labelText: "Referrer ID",
+                  )),
+            ),
+          ],
+        ),
+        StreamSingleQueryBuilder(
+          query: authUserCR.where(uMOs.memberID, isEqualTo: refID),
+          docBuilder: (p0, qds) {
+            var um = UserModel.fromMap(qds.data());
+            if (um.memberPosition != null) {
+              isRefValid = true;
+              return Text(
+                "Your refferer is '${um.profileName}'",
+                style: const TextStyle(color: Colors.green),
+              );
+            } else {
+              return const Text(
+                  "Refferar is not a prime member, please get valid refferar link",
+                  style: TextStyle(color: Colors.orange));
+            }
+          },
+          noResultsW: const Text(
+              "Refferar is not exists, please get valid refferar link",
+              style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    );
   }
 }

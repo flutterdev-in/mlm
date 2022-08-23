@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/model/pin_code_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

@@ -1,9 +1,8 @@
-import 'package:advaithaunnathi/fcm.dart';
+import 'package:advaithaunnathi/services/fcm.dart';
 import 'package:advaithaunnathi/firebase_options.dart';
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -28,8 +27,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options:
-         DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   setPathUrlStrategy();
   await openHiveBoxes();

@@ -1,5 +1,5 @@
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';
@@ -105,6 +105,12 @@ class ProductsGridList extends StatelessWidget {
                     ));
               },
             );
+          }
+          if (snapshot.hasData && snapshot.docs.isEmpty) {
+            return const Text("Zero data");
+          }
+          if (snapshot.hasError) {
+            return const Text("No data");
           }
           return const GFLoader();
         });

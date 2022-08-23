@@ -1,3 +1,4 @@
+import 'package:advaithaunnathi/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,13 +30,13 @@ class MyApp extends StatelessWidget {
 
       // initialBinding: HomeBinding(),
       title: 'My Shop AU',
-      // initialRoute: "/",.
-      // getPages: AppRoutes.routes,
-      home: // const MyHomePage0(),
+      initialRoute: "/",  
+      getPages: appRoutes,
+      // home: // const MyHomePage0(),
           // const BottomBarWithBody(),
       // const Company(),
       // const PrimeScreenHomePage(),
-      const ShoppingScreenHomePage(),
+      // const ShoppingScreenHomePage(nu),
     );
   }
 }

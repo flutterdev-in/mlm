@@ -33,7 +33,12 @@ class ShoppingCatW extends StatelessWidget {
           GFAvatar(
               backgroundColor: Colors.transparent,
               size: GFSize.LARGE,
-              child: CachedNetworkImage(imageUrl: scm.image)),
+              child: CachedNetworkImage(
+                imageUrl: scm.image,
+                errorWidget: (context, url, error) {
+                  return const GFLoader();
+                },
+              )),
           Text(scm.name, textScaleFactor: 0.9),
         ],
       ),

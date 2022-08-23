@@ -1,15 +1,13 @@
-import 'package:advaithaunnathi/firebase_options.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../dart/const_global_objects.dart';
-import '../dart/firebase.dart';
+import '../services/firebase.dart';
 import '../model/cart_model.dart';
 
 class GoogleLoginView extends StatelessWidget {
@@ -65,8 +63,8 @@ Future<void> googleLoginFunction() async {
         .then((user) async {
       Get.snackbar("login", "success");
       userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
-      umos.userInit();
-      umos.updateCartOfnonAuthUser();
+      uMOs.userInit();
+      uMOs.updateCartOfnonAuthUser();
     }).catchError((e) {
       Get.snackbar("Error while login", "Please try again");
     });
@@ -91,8 +89,8 @@ Future<void> googleLoginFunction() async {
             .then((user) async {
           Get.snackbar("login", "success");
           userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
-          umos.userInit();
-          umos.updateCartOfnonAuthUser();
+          uMOs.userInit();
+          uMOs.updateCartOfnonAuthUser();
         }).catchError((e) {
           Get.snackbar("Error while login", "Please try again");
         });

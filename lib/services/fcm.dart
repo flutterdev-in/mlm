@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 
-import 'dart/const_global_objects.dart';
-import 'hive/hive_boxes.dart';
+import '../dart/const_global_objects.dart';
+import '../hive/hive_boxes.dart';
 
 FirebaseMessaging fcm = FirebaseMessaging.instance;
 
@@ -30,7 +30,7 @@ class FCMfunctions {
   static Future<void> checkFCMtoken() async {
     if (fireUser() != null) {
       var tokenB = servicesBox.get(boxStrings.fcmToken);
-      if (tokenB == null || tokenB != String) {
+      if (tokenB == null) {
         var fcmToken = await fcm.getToken();
         await authUserCR.doc(fireUser()?.uid).update({
           "$unIndexed.${boxStrings.fcmToken}": fcmToken,

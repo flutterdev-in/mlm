@@ -1,5 +1,5 @@
 import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
 import 'package:flutter/material.dart';
 

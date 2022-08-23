@@ -52,13 +52,15 @@ dependencies:
   url_strategy: ^0.2.0
   persistent_bottom_nav_bar:
   easy_debounce:
-  razorpay_flutter:
   carousel_slider: 
   badges:
   firebase_image:
   photo_view: ^0.14.0 
-  dots_indicator: ^2.1.0
+  dots_indicator:
   image_picker:
+  firebase_dynamic_links:
+  share_plus:
+  razorpay_web:
 
 dev_dependencies:
   flutter_test:

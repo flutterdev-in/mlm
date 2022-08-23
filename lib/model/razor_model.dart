@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:get/get.dart';
@@ -56,7 +56,7 @@ RegistrationModelObjects regMOs = RegistrationModelObjects();
 
 class RegistrationModelObjects {
   final orderID = "orderID";
-  final razorKey = "rzp_live_bA3NL5xvgNVCls";
+  final razorKey = "rzp_live_yCBJw6q6PHaIpJ";
   final payment = "payment";
   final isPaid = "isPaid";
   final refMemberId = "refMemberId";
@@ -82,11 +82,13 @@ class RegistrationModelObjects {
       var orderIDf = await getOrderIDf.call();
       if (orderIDf.data != null) {
         regModel.orderID = orderIDf.data;
+        if (regModel.orderID != null) {
+          await paymentDR.set(regModel.toMap(), SetOptions(merge: true));
+        }
       }
     }
 
     if (regModel.orderID != null) {
-      await paymentDR.set(regModel.toMap(), SetOptions(merge: true));
       Get.back();
       razorpay.open({
         'key': razorKey,
@@ -111,7 +113,7 @@ class RegistrationModelObjects {
       var rm = await checkAndGetRM();
       if (rm?.isPaid == true && rm?.refMemberId != null) {
         Get.snackbar("Payment success", "Proceed to prime");
-        await umos.checkAndAddPos(rm!.refMemberId!);
+        await uMOs.checkAndAddPos(rm!.refMemberId!);
       } else {
         Get.snackbar("Fetching payment...", "Proceed to prime");
       }

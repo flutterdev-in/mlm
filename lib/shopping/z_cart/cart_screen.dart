@@ -1,6 +1,6 @@
 import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
 import 'package:advaithaunnathi/dart/colors.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';

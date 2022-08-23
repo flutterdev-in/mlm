@@ -1,8 +1,10 @@
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
-import 'package:advaithaunnathi/dart/firebase.dart';
+import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../hive/hive_boxes.dart';
 
@@ -35,17 +37,17 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      umos.memberPosition: memberPosition,
-      umos.profileName: profileName,
-      umos.userEmail: userEmail,
-      umos.phoneNumber: phoneNumber,
-      umos.memberID: memberID,
-      umos.refMemberId: refMemberId,
-      umos.paymentTime:
+      uMOs.memberPosition: memberPosition,
+      uMOs.profileName: profileName,
+      uMOs.userEmail: userEmail,
+      uMOs.phoneNumber: phoneNumber,
+      uMOs.memberID: memberID,
+      uMOs.refMemberId: refMemberId,
+      uMOs.paymentTime:
           paymentTime != null ? Timestamp.fromDate(DateTime.now()) : null,
-      umos.directIncome: directIncome,
+      uMOs.directIncome: directIncome,
       unIndexed: {
-        umos.profilePhotoUrl: profilePhotoUrl,
+        uMOs.profilePhotoUrl: profilePhotoUrl,
         boxStrings.fcmToken: fcmToken,
       }
     };
@@ -53,16 +55,16 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> userMap) {
     return UserModel(
-      memberPosition: userMap[umos.memberPosition],
-      profileName: userMap[umos.profileName] ?? "",
-      memberID: userMap[umos.memberID],
-      userEmail: userMap[umos.userEmail] ?? "",
-      phoneNumber: userMap[umos.phoneNumber],
-      refMemberId: userMap[umos.refMemberId],
-      paymentTime: userMap[umos.paymentTime]?.toDate(),
-      directIncome: userMap[umos.directIncome] ?? 0,
+      memberPosition: userMap[uMOs.memberPosition],
+      profileName: userMap[uMOs.profileName] ?? "",
+      memberID: userMap[uMOs.memberID],
+      userEmail: userMap[uMOs.userEmail] ?? "",
+      phoneNumber: userMap[uMOs.phoneNumber],
+      refMemberId: userMap[uMOs.refMemberId],
+      paymentTime: userMap[uMOs.paymentTime]?.toDate(),
+      directIncome: userMap[uMOs.directIncome] ?? 0,
       profilePhotoUrl: userMap[unIndexed] != null
-          ? userMap[unIndexed][umos.profilePhotoUrl]
+          ? userMap[unIndexed][uMOs.profilePhotoUrl]
           : null,
       fcmToken: userMap[unIndexed] != null
           ? userMap[unIndexed][boxStrings.fcmToken]
@@ -71,7 +73,7 @@ class UserModel {
   }
 }
 
-UserModelObjects umos = UserModelObjects();
+UserModelObjects uMOs = UserModelObjects();
 
 class UserModelObjects {
   final memberPosition = "memberPosition";
@@ -120,12 +122,12 @@ class UserModelObjects {
     String? profilePhotoUrl,
   }) async {
     Map<String, dynamic> map = {
-      umos.memberPosition: memberPosition,
-      umos.profileName: profileName,
-      umos.userEmail: userEmail,
-      umos.memberID: memberID,
-      umos.refMemberId: refMemberId,
-      umos.profilePhotoUrl: profilePhotoUrl,
+      uMOs.memberPosition: memberPosition,
+      uMOs.profileName: profileName,
+      uMOs.userEmail: userEmail,
+      uMOs.memberID: memberID,
+      uMOs.refMemberId: refMemberId,
+      uMOs.profilePhotoUrl: profilePhotoUrl,
     };
 
     Map<String, dynamic> updatedMap = {};
@@ -194,20 +196,31 @@ class UserModelObjects {
     if (fireUser() != null) {
       await userDR()!.get().then((ds) async {
         if (!ds.exists || ds.data() == null) {
-          userDR()!.set(UserModel(
-                  memberPosition: null,
-                  profileName: fireUser()?.displayName ?? "",
-                  memberID: null,
-                  userEmail: fireUser()?.email ?? "",
-                  phoneNumber: null,
-                  refMemberId: null,
-                  profilePhotoUrl: fireUser()?.photoURL,
-                  paymentTime: null,
-                  directIncome: 0,
-                  fcmToken: null)
-              .toMap(), SetOptions(merge: true),);
+          userDR()!.set(
+            UserModel(
+                    memberPosition: null,
+                    profileName: fireUser()?.displayName ?? "",
+                    memberID: null,
+                    userEmail: fireUser()?.email ?? "",
+                    phoneNumber: null,
+                    refMemberId: null,
+                    profilePhotoUrl: fireUser()?.photoURL,
+                    paymentTime: null,
+                    directIncome: 0,
+                    fcmToken: null)
+                .toMap(),
+            SetOptions(merge: true),
+          );
         }
       });
+    }
+  }
+
+  void shareRefLink(UserModel? um) {
+    if (um != null && um.memberID != null && um.memberPosition != null) {
+      Share.share("https://myshopau.com/referral/${um.memberID}");
+    } else {
+      Get.snackbar("Network error", "Please try again");
     }
   }
 }
