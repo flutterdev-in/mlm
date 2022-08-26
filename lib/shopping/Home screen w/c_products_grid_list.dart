@@ -5,6 +5,7 @@ import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';
 import 'package:advaithaunnathi/model/product_model.dart';
 import 'package:advaithaunnathi/shopping/Product%20screen/product_view_screen.dart';
+import 'package:advaithaunnathi/user/user_cart_stream_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -40,10 +41,7 @@ class ProductsGridList extends StatelessWidget {
                 pm.docRef = snapshot.docs[index].reference;
                 return DecoratedBox(
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black12,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.black12, width: 1),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
@@ -53,7 +51,7 @@ class ProductsGridList extends StatelessWidget {
                             child: SizedBox(
                               height: 120,
                               child: CachedNetworkImage(
-                                  imageUrl: pm.images?.first ?? ""),
+                                  imageUrl: pm.images?.first.url ?? ""),
                             ),
                             onTap: () async {
                               await waitMilli(200);
@@ -66,36 +64,39 @@ class ProductsGridList extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               textScaleFactor: 0.95),
                           const SizedBox(height: 3),
-                          (pm.price == null || pm.price == pm.mrp)
-                              ? Text(
-                                  "\u{20B9}${pm.mrp}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(
-                                      "\u{20B9}${pm.price}",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text("\u{20B9}${pm.mrp}",
+                          if (pm.listPrices != null)
+                            (pm.listPrices!.first.mrp ==
+                                    pm.listPrices!.first.price)
+                                ? Text(
+                                    "\u{20B9}${pm.listPrices?.first.mrp}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                        "\u{20B9}${pm.listPrices?.first.price}",
                                         style: const TextStyle(
-                                            decoration:
-                                                TextDecoration.lineThrough),
-                                        textScaleFactor: 0.9),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                        "${((1 - pm.price! / pm.mrp) * 100).toStringAsFixed(0)}% off",
-                                        textScaleFactor: 0.9,
-                                        style: TextStyle(
-                                          color: Colors.deepOrange.shade600,
-                                        )),
-                                  ],
-                                ),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                          "\u{20B9}${pm.listPrices?.first.mrp}",
+                                          style: const TextStyle(
+                                              decoration:
+                                                  TextDecoration.lineThrough),
+                                          textScaleFactor: 0.9),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                          "${((1 - pm.listPrices!.first.price! / pm.listPrices!.first.mrp) * 100).toStringAsFixed(0)}% off",
+                                          textScaleFactor: 0.9,
+                                          style: TextStyle(
+                                            color: Colors.deepOrange.shade600,
+                                          )),
+                                    ],
+                                  ),
                           const SizedBox(height: 5),
                           Align(
                               alignment: Alignment.bottomCenter,
@@ -118,97 +119,112 @@ class ProductsGridList extends StatelessWidget {
 
   //
   Widget addToCart(ProductModel pm) {
-    return Obx(() => StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: userCartCR.value
-            .where(cartMOS.productDoc, isEqualTo: pm.docRef!.id)
-            .limit(1)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const GFLoader(type: GFLoaderType.square);
-          }
-          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            var cm = CartModel.fromMap(snapshot.data!.docs.first.data());
-            cm.thisDR = snapshot.data!.docs.first.reference;
-            return Column(
-              children: [
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GFIconButton(
+    return UserCartGate(builder: (userCartCR) {
+      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: userCartCR
+              .where(cartMOS.productDoc, isEqualTo: pm.docRef!.id)
+              .limit(1)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const GFLoader(type: GFLoaderType.square);
+            }
+            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+              var cm = CartModel.fromMap(snapshot.data!.docs.first.data());
+              cm.thisDR = snapshot.data!.docs.first.reference;
+              return Column(
+                children: [
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GFIconButton(
+                          type: GFButtonType.outline,
+                          size: GFSize.SMALL,
+                          color: Colors.purple,
+                          icon: const Icon(MdiIcons.minus),
+                          onPressed: () async {
+                            await Future.delayed(
+                                const Duration(microseconds: 900));
+                            if (pm.listPrices!.first.stockAvailable > 1) {
+                              if (cm.nos == 1) {
+                                await cm.thisDR!.delete();
+                              } else {
+                                await cm.thisDR!
+                                    .update({cartMOS.nos: cm.nos - 1});
+                              }
+                            }
+                          }),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Text(
+                          cm.nos.toString(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple,
+                              decoration:
+                                  cm.nos > pm.listPrices!.first.stockAvailable
+                                      ? TextDecoration.lineThrough
+                                      : null),
+                        ),
+                      ),
+                      GFIconButton(
+                        color: Colors.purple,
                         type: GFButtonType.outline,
                         size: GFSize.SMALL,
-                        color: Colors.purple,
-                        icon: const Icon(MdiIcons.minus),
+                        icon: const Icon(MdiIcons.plus),
                         onPressed: () async {
                           await Future.delayed(
                               const Duration(microseconds: 900));
-                          if (pm.stockAvailable > 1) {
-                            if (cm.nos == 1) {
-                              await cm.thisDR!.delete();
-                            } else {
-                              await cm.thisDR!
-                                  .update({cartMOS.nos: cm.nos - 1});
-                            }
+                          if (cm.nos < pm.listPrices!.first.maxPerOrder &&
+                              cm.nos < pm.listPrices!.first.stockAvailable) {
+                            await cm.thisDR!.update({cartMOS.nos: cm.nos + 1});
                           }
-                        }),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Text(
-                        cm.nos.toString(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple,
-                            decoration: cm.nos > pm.stockAvailable
-                                ? TextDecoration.lineThrough
-                                : null),
+                        },
                       ),
-                    ),
-                    GFIconButton(
-                      color: Colors.purple,
-                      type: GFButtonType.outline,
-                      size: GFSize.SMALL,
-                      icon: const Icon(MdiIcons.plus),
-                      onPressed: () async {
-                        await Future.delayed(const Duration(microseconds: 900));
-                        if (cm.nos < pm.maxPerOrder &&
-                            cm.nos < pm.stockAvailable) {
-                          await cm.thisDR!.update({cartMOS.nos: cm.nos + 1});
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            );
-          }
-          return Align(
-            child: GFButton(
+                    ],
+                  ),
+                ],
+              );
+            }
+            return Align(
+              child: GFButton(
                 position: GFPosition.end,
                 elevation: 0,
                 color: Colors.black87,
                 type: GFButtonType.outline,
+                child: const Text("Add to cart"),
                 onPressed: () async {
                   await Future.delayed(const Duration(microseconds: 900));
                   var cartM = CartModel(
                           nos: 1,
+                          selectedPriceIndex: 0,
                           productDoc: pm.docRef!,
                           lastTime: DateTime.now())
                       .toMap();
-                  if (fireUser != null || userBoxUID != null) {
-                    await userCartCR.value.doc(pm.docRef!.id).set(cartM);
-                  } else if (userBoxUID == null) {
-                    await nonAuthUserCR.add({}).then((dr) async {
+                  if (fireUser() != null) {
+                    await authUserCR
+                        .doc(fireUser()!.uid)
+                        .collection(cart)
+                        .doc(pm.docRef!.id)
+                        .set(cartM);
+                  } else if (userBoxUID() != null) {
+                    await nonAuthUserCR
+                        .doc(userBoxUID())
+                        .collection(cart)
+                        .doc(pm.docRef!.id)
+                        .set(cartM);
+                  } else if (userBoxUID() == null) {
+                    await nonAuthUserCR.add({"dummy": null}).then((dr) async {
                       await userBox.put(boxStrings.userUID, dr.id);
-                      userCartCR.value =
-                          nonAuthUserCR.doc(dr.id).collection(cart);
+
                       await dr.collection(cart).doc(pm.docRef!.id).set(cartM);
                     });
                   }
                 },
-                child: const Text("Add to cart")),
-          );
-        }));
+              ),
+            );
+          });
+    });
   }
 }

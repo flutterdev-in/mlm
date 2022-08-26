@@ -2,9 +2,9 @@ import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:get/get.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:razorpay_web/razorpay_web.dart';
 
-import 'user_model.dart';
+import '../model/user_model.dart';
 
 //
 class RegistrationModel {
@@ -113,7 +113,7 @@ class RegistrationModelObjects {
       var rm = await checkAndGetRM();
       if (rm?.isPaid == true && rm?.refMemberId != null) {
         Get.snackbar("Payment success", "Proceed to prime");
-        await uMOs.checkAndAddPos(rm!.refMemberId!);
+        await userMOs.checkAndAddPos(rm!.refMemberId!);
       } else {
         Get.snackbar("Fetching payment...", "Proceed to prime");
       }
@@ -127,6 +127,7 @@ class RegistrationModelObjects {
   Future<RegistrationModel?> checkAndGetRM() async {
     RegistrationModel? rm;
     await paymentDR.get().then((ds) async {
+      rm?.isPaid = null;
       if (ds.exists && ds.data() != null) {
         rm = RegistrationModel.fromMap(ds.data()!);
         rm!.docRef = ds.reference;

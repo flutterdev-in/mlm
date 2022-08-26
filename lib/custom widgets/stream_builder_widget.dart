@@ -4,7 +4,8 @@ import 'package:getwidget/getwidget.dart';
 
 class StreamDocBuilder extends StatelessWidget {
   final DocumentReference<Map<String, dynamic>> docRef;
-  final Widget Function(BuildContext, DocumentSnapshot<Map<String, dynamic>>)
+  final Widget Function(
+          BuildContext context, DocumentSnapshot<Map<String, dynamic>> docSnap)
       docBuilder;
   final Widget? loadingW;
   final Widget? noResultsW;

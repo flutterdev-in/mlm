@@ -1,3 +1,3 @@
 import 'package:flutter/material.dart';
 
-const primaryColor = Colors.pinkAccent;
+final primaryColor = Colors.teal.shade900;

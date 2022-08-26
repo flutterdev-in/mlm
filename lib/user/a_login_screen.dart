@@ -6,9 +6,6 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../dart/const_global_objects.dart';
-import '../services/firebase.dart';
-import '../model/cart_model.dart';
 
 class GoogleLoginView extends StatelessWidget {
   const GoogleLoginView({Key? key}) : super(key: key);
@@ -62,9 +59,9 @@ Future<void> googleLoginFunction() async {
         .signInWithPopup(googleProvider)
         .then((user) async {
       Get.snackbar("login", "success");
-      userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
-      uMOs.userInit();
-      uMOs.updateCartOfnonAuthUser();
+      // userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
+      userMOs.userInit();
+      userMOs.updateCartOfnonAuthUser();
     }).catchError((e) {
       Get.snackbar("Error while login", "Please try again");
     });
@@ -88,9 +85,9 @@ Future<void> googleLoginFunction() async {
             .signInWithCredential(oAuthCredential)
             .then((user) async {
           Get.snackbar("login", "success");
-          userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
-          uMOs.userInit();
-          uMOs.updateCartOfnonAuthUser();
+          // userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
+          userMOs.userInit();
+          userMOs.updateCartOfnonAuthUser();
         }).catchError((e) {
           Get.snackbar("Error while login", "Please try again");
         });

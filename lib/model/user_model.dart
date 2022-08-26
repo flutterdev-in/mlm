@@ -19,6 +19,7 @@ class UserModel {
   DateTime? paymentTime;
   int directIncome;
   String? fcmToken;
+  DateTime? firstLoginTime;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   UserModel({
@@ -32,22 +33,25 @@ class UserModel {
     required this.paymentTime,
     required this.directIncome,
     required this.fcmToken,
+    required this.firstLoginTime,
     this.docRef,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      uMOs.memberPosition: memberPosition,
-      uMOs.profileName: profileName,
-      uMOs.userEmail: userEmail,
-      uMOs.phoneNumber: phoneNumber,
-      uMOs.memberID: memberID,
-      uMOs.refMemberId: refMemberId,
-      uMOs.paymentTime:
+      userMOs.memberPosition: memberPosition,
+      userMOs.profileName: profileName,
+      userMOs.userEmail: userEmail,
+      userMOs.phoneNumber: phoneNumber,
+      userMOs.memberID: memberID,
+      userMOs.refMemberId: refMemberId,
+      userMOs.paymentTime:
           paymentTime != null ? Timestamp.fromDate(DateTime.now()) : null,
-      uMOs.directIncome: directIncome,
+      userMOs.directIncome: directIncome,
+      userMOs.firstLoginTime:
+          Timestamp.fromDate(firstLoginTime ?? DateTime.now()),
       unIndexed: {
-        uMOs.profilePhotoUrl: profilePhotoUrl,
+        userMOs.profilePhotoUrl: profilePhotoUrl,
         boxStrings.fcmToken: fcmToken,
       }
     };
@@ -55,16 +59,17 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> userMap) {
     return UserModel(
-      memberPosition: userMap[uMOs.memberPosition],
-      profileName: userMap[uMOs.profileName] ?? "",
-      memberID: userMap[uMOs.memberID],
-      userEmail: userMap[uMOs.userEmail] ?? "",
-      phoneNumber: userMap[uMOs.phoneNumber],
-      refMemberId: userMap[uMOs.refMemberId],
-      paymentTime: userMap[uMOs.paymentTime]?.toDate(),
-      directIncome: userMap[uMOs.directIncome] ?? 0,
+      memberPosition: userMap[userMOs.memberPosition],
+      profileName: userMap[userMOs.profileName] ?? "",
+      memberID: userMap[userMOs.memberID],
+      userEmail: userMap[userMOs.userEmail] ?? "",
+      phoneNumber: userMap[userMOs.phoneNumber],
+      refMemberId: userMap[userMOs.refMemberId],
+      paymentTime: userMap[userMOs.paymentTime]?.toDate(),
+      directIncome: userMap[userMOs.directIncome] ?? 0,
+      firstLoginTime: userMap[userMOs.firstLoginTime]?.toDate(),
       profilePhotoUrl: userMap[unIndexed] != null
-          ? userMap[unIndexed][uMOs.profilePhotoUrl]
+          ? userMap[unIndexed][userMOs.profilePhotoUrl]
           : null,
       fcmToken: userMap[unIndexed] != null
           ? userMap[unIndexed][boxStrings.fcmToken]
@@ -73,7 +78,7 @@ class UserModel {
   }
 }
 
-UserModelObjects uMOs = UserModelObjects();
+UserModelObjects userMOs = UserModelObjects();
 
 class UserModelObjects {
   final memberPosition = "memberPosition";
@@ -91,6 +96,7 @@ class UserModelObjects {
   final paymentTime = "paymentTime";
   final docs = "docs";
   final payment = "payment";
+  final firstLoginTime = "firstLoginTime";
 
   //
   String dateTime(DateTime time) {
@@ -107,11 +113,11 @@ class UserModelObjects {
     return chatDayTime;
   }
 
-  Future<void> onPaymentFunctionCall(String userUID) async {
-    HttpsCallable callable =
-        FirebaseFunctions.instance.httpsCallable("on_payment");
-    await callable.call(<String>[userUID]);
-  }
+  // Future<void> onPaymentFunctionCall(String userUID) async {
+  //   HttpsCallable callable =
+  //       FirebaseFunctions.instance.httpsCallable("on_payment");
+  //   await callable.call(<String>[userUID]);
+  // }
 
   Future<void> updateUserModelFields({
     int? memberPosition,
@@ -122,12 +128,12 @@ class UserModelObjects {
     String? profilePhotoUrl,
   }) async {
     Map<String, dynamic> map = {
-      uMOs.memberPosition: memberPosition,
-      uMOs.profileName: profileName,
-      uMOs.userEmail: userEmail,
-      uMOs.memberID: memberID,
-      uMOs.refMemberId: refMemberId,
-      uMOs.profilePhotoUrl: profilePhotoUrl,
+      userMOs.memberPosition: memberPosition,
+      userMOs.profileName: profileName,
+      userMOs.userEmail: userEmail,
+      userMOs.memberID: memberID,
+      userMOs.refMemberId: refMemberId,
+      userMOs.profilePhotoUrl: profilePhotoUrl,
     };
 
     Map<String, dynamic> updatedMap = {};
@@ -154,21 +160,27 @@ class UserModelObjects {
     }
   }
 
-  Future<void> addPosition(String refID) async {
-    HttpsCallable addPos =
-        FirebaseFunctions.instance.httpsCallable('addPosition');
-    await addPos.call(<String, dynamic>{
-      "uid": fireUser()?.uid,
-      "refMemberId": refID,
-    });
-  }
+  // Future<void> addPosition(String refID) async {
+  //   HttpsCallable addPos =
+  //       FirebaseFunctions.instance.httpsCallable('addPosition');
+  //   await addPos.call(<String, dynamic>{
+  //     "uid": fireUser()?.uid,
+  //     "refMemberId": refID,
+  //   });
+  // }
 
   Future<void> checkAndAddPos(String refID) async {
+    
     await authUserCR.doc(fireUser()?.uid).get().then((ds) async {
       if (ds.exists && ds.data() != null) {
         var um = UserModel.fromMap(ds.data()!);
         if (um.memberPosition == null) {
-          await addPosition(refID);
+          HttpsCallable addPos =
+              FirebaseFunctions.instance.httpsCallable('addPosition');
+          await addPos.call(<String, dynamic>{
+            "uid": fireUser()?.uid,
+            "refMemberId": refID,
+          });
         }
       }
     });
@@ -207,6 +219,7 @@ class UserModelObjects {
                     profilePhotoUrl: fireUser()?.photoURL,
                     paymentTime: null,
                     directIncome: 0,
+                    firstLoginTime: DateTime.now(),
                     fcmToken: null)
                 .toMap(),
             SetOptions(merge: true),

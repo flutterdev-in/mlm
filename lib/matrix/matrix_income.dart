@@ -6,7 +6,7 @@ int matrixIncome(int thisMemberPos, int lastMemberPos) {
     if (lastMemberPos >= dlLastPos(1, thisMemberPos)) {
       matrixInc += 580;
     } else {
-      matrixInc += (lastMemberPos - dlFirstPos(1, thisMemberPos)) * 400;
+      matrixInc += (lastMemberPos - dlFirstPos(1, thisMemberPos) + 1) * 400;
     }
   }
   if (lastMemberPos >= dlFirstPos(3, thisMemberPos)) {

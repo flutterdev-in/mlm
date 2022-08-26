@@ -1,7 +1,7 @@
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
-import 'package:advaithaunnathi/model/razor_model.dart';
+import 'package:advaithaunnathi/Prime%20models/razor_model.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
 import 'package:advaithaunnathi/prime_screens/registration_screen.dart';
@@ -65,10 +65,10 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                   var rm = await regMOs.checkAndGetRM();
 
                   if (rm?.orderID == null || rm?.refMemberId == null) {
-                    Get.to(() => const PrimeRegistrationScreen());
+                    Get.to(() => const PrimeRegistrationScreen0());
                     isLoading.value = false;
                   } else if (rm?.isPaid == true && rm?.refMemberId != null) {
-                    await uMOs.checkAndAddPos(rm!.refMemberId!);
+                    await userMOs.checkAndAddPos(rm!.refMemberId!);
                     Get.to(() => const PrimeHomeScreen());
                     isLoading.value = false;
                   } else {
@@ -143,7 +143,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
               onPressed: () async {
                 Get.back();
                 await rm.docRef?.delete();
-                Get.to(() => const PrimeRegistrationScreen());
+                Get.to(() => const PrimeRegistrationScreen0());
               },
               child: const Text("Create new order")),
           const SizedBox(height: 50),

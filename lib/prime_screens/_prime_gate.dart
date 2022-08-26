@@ -23,8 +23,9 @@ class PrimeGate extends StatelessWidget {
           if (um.memberPosition != null) {
             return const PrimeHomeScreen();
           } else {
-            servicesBox.put(uMOs.refMemberId, Get.parameters[uMOs.refMemberId]);
-            return const PrimeRegistrationScreen();
+            servicesBox.put(
+                userMOs.refMemberId, Get.parameters[userMOs.refMemberId]);
+            return const PrimeRegistrationScreen0();
           }
         }
         return const Scaffold(

@@ -18,8 +18,8 @@ class DirectIncomeHistory extends StatelessWidget {
       appBar: wantAppBar ? AppBar(title: const Text("Direct referals")) : null,
       body: FirestoreListViewBuilder(
         query: authUserCR
-            .where(uMOs.refMemberId, isEqualTo: um.memberID)
-            .orderBy(uMOs.memberPosition, descending: false),
+            .where(userMOs.refMemberId, isEqualTo: um.memberID)
+            .orderBy(userMOs.memberPosition, descending: false),
         builder: (context, snapshot) {
           var umMem = UserModel.fromMap(snapshot.data());
           return GFListTile(

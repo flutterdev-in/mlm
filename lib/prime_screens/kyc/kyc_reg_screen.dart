@@ -10,7 +10,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../model/kyc_model.dart';
+import '../../Prime models/kyc_model.dart';
 
 class KycRegScreen extends StatelessWidget {
   const KycRegScreen({Key? key}) : super(key: key);

@@ -78,7 +78,7 @@ class WalletHomeScreen extends StatelessWidget {
                     color: Colors.blue.shade100,
                     title: const Text("Promotional benefits"),
                     icon: StreamSingleQueryBuilder(
-                        query: authUserCR.orderBy(uMOs.memberPosition,
+                        query: authUserCR.orderBy(userMOs.memberPosition,
                             descending: true),
                         docBuilder: (context, snapshot) {
                           var umLast = UserModel.fromMap(snapshot.data());
@@ -99,7 +99,7 @@ class WalletHomeScreen extends StatelessWidget {
 }
 
 void refWithdrawBS() async {
-  var um = await uMOs.getUserModel();
+  var um = await userMOs.getUserModel();
   if (um == null) {
     Get.snackbar(
         "Network error", "Error while fetching data, please try again");

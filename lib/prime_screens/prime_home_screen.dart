@@ -29,7 +29,7 @@ class PrimeHomeScreen extends StatelessWidget {
           SizedBox(
             height: 50,
             width: Get.width,
-            child: const Card(
+            child: Card(
                 child: Center(
               child: Text("ADVAITAUNNATHI",
                   style: TextStyle(
@@ -48,7 +48,7 @@ class PrimeHomeScreen extends StatelessWidget {
                     if (ds.exists && ds.data() != null) {
                       um = UserModel.fromMap(ds.data()!);
                     }
-                  }).then((value) => uMOs.shareRefLink(um));
+                  }).then((value) => userMOs.shareRefLink(um));
                 },
                 child: const Text("REFER")),
           ]),

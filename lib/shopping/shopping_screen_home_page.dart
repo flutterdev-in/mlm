@@ -1,9 +1,10 @@
+import 'package:advaithaunnathi/policies/policies_card.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
-import 'package:advaithaunnathi/shopping/Home%20screen%20w/a_offers_corosal.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/b_shopping_cat_w.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/c_products_grid_list.dart';
 import 'package:advaithaunnathi/shopping/z_cart/cart_screen.dart';
 import 'package:advaithaunnathi/user/user_account_screen.dart';
+import 'package:advaithaunnathi/user/user_cart_stream_widget.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,9 +34,9 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
     FCMfunctions.setupInteractedMessage();
     FCMfunctions.onMessage();
     FCMfunctions.checkFCMtoken();
-    uMOs.userInit();
+    userMOs.userInit();
     if (widget.isRefferar == true) {
-      servicesBox.put(uMOs.refMemberId, Get.parameters[uMOs.refMemberId]);
+      servicesBox.put(userMOs.refMemberId, Get.parameters[userMOs.refMemberId]);
       if (fireUser() != null) {
         bottomBarLogin();
       }
@@ -81,15 +82,17 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
             //     : null,
             body: ListView(
               children: const [
-                OffersCarousel(),
+                // OffersCarousel(),
                 ShoppingCatW(),
                 SizedBox(height: 10),
                 ProductsGridList(),
                 SizedBox(height: 60),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("V_1.0.4\nDated 23 Aug 2022, 02:56pm"),
+                  child: Text("V_1.0.4\nDated 23 Aug 2022, 03:38pm"),
                 ),
+                SizedBox(height: 10),
+                PoliciesPortion(),
               ],
             ),
           );
@@ -99,30 +102,34 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
   Widget cartBadge() {
     var cartIcon = const Icon(MdiIcons.cart);
 
-    return Obx(() => StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: userCartCR.value.limit(6).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            if (snapshot.data!.docs.length > 5) {
-              return Badge(
-                  badgeColor: Colors.purple,
-                  badgeContent: const Text(
-                    "5+",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  child: cartIcon);
-            } else {
-              return Badge(
-                  badgeColor: Colors.purple,
-                  badgeContent: Text(
-                    snapshot.data!.docs.length.toString(),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  child: cartIcon);
-            }
-          }
-          return cartIcon;
-        }));
+    return  UserCartGate(
+      builder: (userCartCR) {
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: userCartCR.limit(6).snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                if (snapshot.data!.docs.length > 5) {
+                  return Badge(
+                      badgeColor: Colors.purple,
+                      badgeContent: const Text(
+                        "5+",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      child: cartIcon);
+                } else {
+                  return Badge(
+                      badgeColor: Colors.purple,
+                      badgeContent: Text(
+                        snapshot.data!.docs.length.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      child: cartIcon);
+                }
+              }
+              return cartIcon;
+            });
+      }
+    );
   }
 
   Widget drawerItems() {

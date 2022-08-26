@@ -2,21 +2,22 @@ import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dar
 import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
-import 'package:advaithaunnathi/model/razor_model.dart';
+import 'package:advaithaunnathi/Prime%20models/razor_model.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class PrimeRegistrationScreen extends StatefulWidget {
-  const PrimeRegistrationScreen({Key? key}) : super(key: key);
+class PrimeRegistrationScreen0 extends StatefulWidget {
+  const PrimeRegistrationScreen0({Key? key}) : super(key: key);
 
   @override
-  State<PrimeRegistrationScreen> createState() =>
-      _PrimeRegistrationScreenState();
+  State<PrimeRegistrationScreen0> createState() =>
+      _PrimeRegistrationScreen0State();
 }
 
-class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
+class _PrimeRegistrationScreen0State extends State<PrimeRegistrationScreen0> {
   var interestedIn = "Marketing".obs;
 
   @override
@@ -36,7 +37,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   }
 
   // var sfx = false.obs;
-  var refererID = (servicesBox.get(uMOs.refMemberId) ?? "").toString();
+  var refererID = (servicesBox.get(userMOs.refMemberId) ?? "").toString();
   String firstName = fireUser()?.displayName?.split(" ").last ?? "";
   String surName = fireUser()?.displayName?.split(" ").first ?? "";
   String? phoneNumber;
@@ -72,7 +73,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
 
   Future<String> checkMember(String id) async {
     var k = await authUserCR
-        .where(uMOs.memberID, isEqualTo: id)
+        .where(userMOs.memberID, isEqualTo: id)
         .limit(1)
         .get()
         .then((qs) {
@@ -193,8 +194,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
               if (isAllTrue()) {
                 isLoading.value = true;
                 await authUserCR.doc(fireUser()?.uid).update({
-                  uMOs.phoneNumber: phoneNumber,
-                  uMOs.profileName: "$firstName $surName"
+                  userMOs.phoneNumber: phoneNumber,
+                  userMOs.profileName: "$firstName $surName"
                 });
                 await regMOs.razorOder(RegistrationModel(
                     orderID: null,
@@ -353,7 +354,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
           ],
         ),
         StreamSingleQueryBuilder(
-          query: authUserCR.where(uMOs.memberID, isEqualTo: refID),
+          query: authUserCR.where(userMOs.memberID, isEqualTo: refID),
           docBuilder: (p0, qds) {
             var um = UserModel.fromMap(qds.data());
             if (um.memberPosition != null) {

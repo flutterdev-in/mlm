@@ -3,24 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
 import 'package:getwidget/components/loader/gf_loader.dart';
 
-class FirestoreListViewBuilder extends StatelessWidget {
+class StreamListDocsBuilder extends StatelessWidget {
   final Query<Map<String, dynamic>> query;
   final Widget Function(
-      BuildContext, QueryDocumentSnapshot<Map<String, dynamic>>) builder;
+          BuildContext, List<QueryDocumentSnapshot<Map<String, dynamic>>>)
+      listBuilder;
   final Widget? loadingW;
   final Widget? noResultsW;
   final Widget? errorW;
   final int pageSize;
-  final bool shrinkWrap;
-  const FirestoreListViewBuilder({
+
+  const StreamListDocsBuilder({
     Key? key,
     required this.query,
-    required this.builder,
+    required this.listBuilder,
     this.loadingW,
     this.noResultsW,
     this.errorW,
     this.pageSize = 8,
-    this.shrinkWrap = false,
   }) : super(key: key);
 
   @override
@@ -42,16 +42,7 @@ class FirestoreListViewBuilder extends StatelessWidget {
             );
           }
           if (snapshot.hasData && snapshot.docs.isNotEmpty) {
-            return ListView.builder(
-                shrinkWrap: shrinkWrap,
-                itemCount: snapshot.docs.length,
-                itemBuilder: (context, index) {
-                  if (snapshot.hasMore && index + 1 == snapshot.docs.length) {
-                    snapshot.fetchMore();
-                  }
-                  var qds = snapshot.docs[index];
-                  return builder(context, qds);
-                });
+            return listBuilder(context, snapshot.docs);
           }
           return loadingW ?? const GFLoader();
         });

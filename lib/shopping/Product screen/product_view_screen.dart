@@ -47,7 +47,7 @@ class ProductViewScreen extends StatelessWidget {
                       Container(
                     margin: const EdgeInsets.symmetric(horizontal: 5),
                     // color: Colors.orange.shade100,
-                    child: CachedNetworkImage(imageUrl: pm.images?[itemIndex]),
+                    child: CachedNetworkImage(imageUrl: pm.images?[itemIndex].url??""),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -76,14 +76,14 @@ class ProductViewScreen extends StatelessWidget {
                           textScaleFactor: 1.5,
                         ),
                         Text(
-                          "${pm.mrp}  ",
+                          "${pm.listPrices?.first.mrp}  ",
                           textScaleFactor: 1.5,
                           style: const TextStyle(
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
                         Text(
-                          "\u{20B9}${pm.price}",
+                          "\u{20B9}${pm.listPrices?.first.price}",
                           textScaleFactor: 1.5,
                         ),
                       ],
@@ -137,81 +137,82 @@ class ProductViewScreen extends StatelessWidget {
   }
 }
 
-class MultiImageViewerScreen extends StatefulWidget {
-  final PageController pageController;
-  final ProductModel pm;
+// class MultiImageViewerScreen extends StatefulWidget {
+//   final PageController pageController;
+//   final ProductModel pm;
 
-  MultiImageViewerScreen({
-    Key? key,
-    required this.pm,
-  }) : pageController = PageController();
+//   MultiImageViewerScreen({
+//     Key? key,
+//     required this.pm,
+//   }) : pageController = PageController();
 
-  @override
-  State<MultiImageViewerScreen> createState() => _MultiImageViewerScreenState();
-}
+//   @override
+//   State<MultiImageViewerScreen> createState() => _MultiImageViewerScreenState();
+// }
 
-class _MultiImageViewerScreenState extends State<MultiImageViewerScreen> {
-  @override
-  void didChangeDependencies() {
-    context.dependOnInheritedWidgetOfExactType(); // OK
-    super.didChangeDependencies();
-  }
+// class _MultiImageViewerScreenState extends State<MultiImageViewerScreen> {
+//   @override
+//   void didChangeDependencies() {
+//     context.dependOnInheritedWidgetOfExactType(); // OK
+//     super.didChangeDependencies();
+//   }
 
-  @override
-  void dispose() {
-    widget.pageController.dispose();
-    // context.dependOnInheritedWidgetOfExactType();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     widget.pageController.dispose();
+//     // context.dependOnInheritedWidgetOfExactType();
+//     super.dispose();
+//   }
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  @override
-  Widget build(BuildContext context) {
-    var rxIndex = 0.obs;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Obx(() {
-          var afm = widget.pm.images?[rxIndex.value];
+//   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+//   @override
+//   Widget build(BuildContext context) {
+//     var rxIndex = 0.obs;
+//     return Scaffold(
+//       extendBodyBehindAppBar: true,
+//       key: _scaffoldKey,
+//       appBar: AppBar(
+//         backgroundColor: Colors.transparent,
+//         elevation: 0,
+//         title: Obx(() {
+//           var afm = widget.pm.images?[rxIndex.value].url;
 
-          return Text(afm, textScaleFactor: 0.8);
-        }),
-      ),
-      body: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          PhotoViewGallery.builder(
-            pageController: widget.pageController,
-            itemCount: widget.pm.images?.length,
-            builder: (context, index) {
-              var afm = widget.pm.images?[index];
-              return PhotoViewGalleryPageOptions(
-                  initialScale: PhotoViewComputedScale.contained,
-                  minScale: PhotoViewComputedScale.contained * 0.2,
-                  maxScale: PhotoViewComputedScale.contained * 2,
-                  imageProvider: CachedNetworkImageProvider(afm.rumm!.img!));
-            },
-            onPageChanged: (index) {
-              rxIndex.value = index;
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 150),
-            child: Obx(() {
-              var afm = widget.pm.images?[rxIndex.value];
-              var time = DateFormat("hh:mm a")
-                  .format(afm.foodTakenTime ?? DateTime.now());
-              return Text(
-                "Image ${rxIndex.value + 1}/${widget.pm.images?.length} ($time)",
-                style: const TextStyle(color: Colors.white),
-              );
-            }),
-          )
-        ],
-      ),
-    );
-  }
-}
+//           return Text(afm??"", textScaleFactor: 0.8);
+//         }),
+//       ),
+//       body: Stack(
+//         alignment: Alignment.bottomCenter,
+//         children: [
+//           PhotoViewGallery.builder(
+//             pageController: widget.pageController,
+//             itemCount: widget.pm.images?.length,
+//             builder: (context, index) {
+//               var afm = widget.pm.images?[index];
+//               return PhotoViewGalleryPageOptions(
+//                   initialScale: PhotoViewComputedScale.contained,
+//                   minScale: PhotoViewComputedScale.contained * 0.2,
+//                   maxScale: PhotoViewComputedScale.contained * 2,
+//                   imageProvider: CachedNetworkImageProvider(afm?.url??""),
+//                   );
+//             },
+//             onPageChanged: (index) {
+//               rxIndex.value = index;
+//             },
+//           ),
+//           Padding(
+//             padding: const EdgeInsets.only(bottom: 150),
+//             child: Obx(() {
+//               var afm = widget.pm.images?[rxIndex.value];
+//               var time = DateFormat("hh:mm a")
+//                   .format(afm.foodTakenTime ?? DateTime.now());
+//               return Text(
+//                 "Image ${rxIndex.value + 1}/${widget.pm.images?.length} ($time)",
+//                 style: const TextStyle(color: Colors.white),
+//               );
+//             }),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
