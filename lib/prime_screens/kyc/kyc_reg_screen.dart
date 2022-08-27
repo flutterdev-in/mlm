@@ -11,9 +11,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../../Prime models/kyc_model.dart';
+import '../../Prime models/prime_member_model.dart';
 
 class KycRegScreen extends StatelessWidget {
-  const KycRegScreen({Key? key}) : super(key: key);
+  PrimeMemberModel pmm;
+  KycRegScreen(this.pmm, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,25 +25,25 @@ class KycRegScreen extends StatelessWidget {
         checkOrPassbookUrl: null,
         accountNumber: null,
         ifsc: null,
-        docRef: kycMOs.kycDR(),
+        docRef: kycMOs.kycDR(pmm),
         bankName: null);
 
     Widget bodyW(KycModel km) {
       return Obx(() => Stack(
             children: [
-              KycBody(km),
+              KycBody(pmm, km),
               if (isLoading.value) const Center(child: GFLoader()),
             ],
           ));
     }
 
     return StreamDocBuilder(
-      docRef: kycMOs.kycDR()!,
+      docRef: kycMOs.kycDR(pmm),
       loadingW: Scaffold(
           appBar: AppBar(title: const Text("KYC")), body: const GFLoader()),
       noResultsW:
           Scaffold(appBar: AppBar(title: const Text("KYC")), body: bodyW(km)),
-      docBuilder: (context, docSnap) {
+      builder: (docSnap) {
         km = KycModel.fromMap(docSnap.data()!);
         km.docRef = docSnap.reference;
         return Scaffold(
@@ -63,8 +65,10 @@ class KycRegScreen extends StatelessWidget {
 }
 
 class KycBody extends StatelessWidget {
+  final PrimeMemberModel pmm;
   final KycModel km;
-  const KycBody(this.km, {Key? key}) : super(key: key);
+
+  const KycBody(this.pmm, this.km, {Key? key}) : super(key: key);
   final underVerification = "\u23F3 Under verification";
 
   @override
@@ -210,7 +214,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.aadhaarStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.gallery, kycMOs.aadhaarUrl);
+                                source: ImageSource.gallery,
+                                photoName: kycMOs.aadhaarUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -218,7 +224,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.aadhaarStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.camera, kycMOs.aadhaarUrl);
+                                source: ImageSource.camera,
+                                photoName: kycMOs.aadhaarUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))
@@ -265,7 +273,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.panCardStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.gallery, kycMOs.panCardUrl);
+                                source: ImageSource.gallery,
+                                photoName: kycMOs.panCardUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -273,7 +283,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.panCardStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.camera, kycMOs.panCardUrl);
+                                source: ImageSource.camera,
+                                photoName: kycMOs.panCardUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))
@@ -322,7 +334,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.checkOrPassbookStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.gallery, kycMOs.checkOrPassbookUrl);
+                                source: ImageSource.gallery,
+                                photoName: kycMOs.checkOrPassbookUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -330,7 +344,9 @@ class KycBody extends StatelessWidget {
                         onPressed: () {
                           if (km.checkOrPassbookStatus != kycMOs.verified) {
                             kycMOs.pickPhoto(
-                                ImageSource.camera, kycMOs.checkOrPassbookUrl);
+                                source: ImageSource.camera,
+                                photoName: kycMOs.checkOrPassbookUrl,
+                                pmm: pmm);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))

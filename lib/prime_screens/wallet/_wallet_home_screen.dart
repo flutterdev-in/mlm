@@ -1,8 +1,8 @@
+import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
-import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/a_referar_income_history.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +11,8 @@ import 'package:getwidget/getwidget.dart';
 import '../../matrix/matrix_income.dart';
 
 class WalletHomeScreen extends StatelessWidget {
-  const WalletHomeScreen({Key? key}) : super(key: key);
+  PrimeMemberModel pmm;
+  WalletHomeScreen(this.pmm, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,23 +22,19 @@ class WalletHomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              stream: authUserCR.doc(fireUser()?.uid).snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data!.data() != null) {
-                  var um = UserModel.fromMap(snapshot.data!.data()!);
-                  um.docRef = snapshot.data!.reference;
-                  return bodyW(um);
-                } else {
-                  return const Text("Loading..");
-                }
-              }),
+          StreamDocBuilder(
+            docRef: pmm.docRef!,
+            builder: (docSnap) {
+              pmm = PrimeMemberModel.fromMap(docSnap.data()!);
+              return bodyW(pmm);
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget bodyW(UserModel um) {
+  Widget bodyW(PrimeMemberModel pm) {
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -51,9 +48,9 @@ class WalletHomeScreen extends StatelessWidget {
                 GFListTile(
                   color: Colors.green.shade100,
                   title: const Text("Referal benefits"),
-                  icon: Text("\u{20B9} ${um.directIncome * 500}"),
+                  icon: Text("\u{20B9} ${pm.directIncome * 500}"),
                   onTap: () {
-                    Get.to(() => const ReferalBenefitsScreen());
+                    Get.to(() => ReferalBenefitsScreen(pmm));
                   },
                 ),
                 GFButton(
@@ -78,12 +75,14 @@ class WalletHomeScreen extends StatelessWidget {
                     color: Colors.blue.shade100,
                     title: const Text("Promotional benefits"),
                     icon: StreamSingleQueryBuilder(
-                        query: authUserCR.orderBy(userMOs.memberPosition,
-                            descending: true),
-                        docBuilder: (context, snapshot) {
-                          var umLast = UserModel.fromMap(snapshot.data());
+                        query: primeMOs
+                            .primeMembersCR()
+                            .orderBy(userMOs.memberPosition, descending: true),
+                        builder: (snapshot) {
+                          var pmLast =
+                              PrimeMemberModel.fromMap(snapshot.data());
                           return Text(
-                              "${matrixIncome(um.memberPosition ?? 0, umLast.memberPosition ?? 0)} coins");
+                              "${matrixIncome(pm.memberPosition ?? 0, pmLast.memberPosition ?? 0)} coins");
                         })),
                 GFButton(
                   onPressed: () {},
@@ -96,23 +95,23 @@ class WalletHomeScreen extends StatelessWidget {
       ],
     );
   }
-}
 
-void refWithdrawBS() async {
-  var um = await userMOs.getUserModel();
-  if (um == null) {
-    Get.snackbar(
-        "Network error", "Error while fetching data, please try again");
-  } else if (um.directIncome == 0) {
-    Get.bottomSheet(
-      Container(
-          color: Colors.white,
-          height: 150,
-          child: const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-                "Your referer balance is zero, please get referers and withdraw"),
-          )),
-    );
+  void refWithdrawBS() async {
+    var pm = await primeMOs.getPrimeMemberModel(pmm.userName!);
+    if (pm == null) {
+      Get.snackbar(
+          "Network error", "Error while fetching data, please try again");
+    } else if (pm.directIncome == 0) {
+      Get.bottomSheet(
+        Container(
+            color: Colors.white,
+            height: 150,
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                  "Your referer balance is zero, please get referers and withdraw"),
+            )),
+      );
+    }
   }
 }

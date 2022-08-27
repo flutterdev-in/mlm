@@ -1,6 +1,5 @@
 import 'package:advaithaunnathi/policies/policies_card.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
-import 'package:advaithaunnathi/shopping/Home%20screen%20w/b_shopping_cat_w.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/c_products_grid_list.dart';
 import 'package:advaithaunnathi/shopping/z_cart/cart_screen.dart';
 import 'package:advaithaunnathi/user/user_account_screen.dart';
@@ -15,14 +14,11 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../custom widgets/bottom_bar_login.dart';
 import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
-import '../hive/hive_boxes.dart';
 import '../services/fcm.dart';
-import '../model/cart_model.dart';
 import '../model/user_model.dart';
 
 class ShoppingScreenHomePage extends StatefulWidget {
-  final bool? isRefferar;
-  const ShoppingScreenHomePage(this.isRefferar, {Key? key}) : super(key: key);
+  const ShoppingScreenHomePage({Key? key}) : super(key: key);
 
   @override
   State<ShoppingScreenHomePage> createState() => _ShoppingScreenHomePageState();
@@ -35,12 +31,7 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
     FCMfunctions.onMessage();
     FCMfunctions.checkFCMtoken();
     userMOs.userInit();
-    if (widget.isRefferar == true) {
-      servicesBox.put(userMOs.refMemberId, Get.parameters[userMOs.refMemberId]);
-      if (fireUser() != null) {
-        bottomBarLogin();
-      }
-    }
+
     super.initState();
   }
 
@@ -54,6 +45,13 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
             appBar: AppBar(
               title: const Text("MyShop"),
               actions: [
+                IconButton(
+                  onPressed: () async {
+                    await waitMilli(250);
+                    Get.toNamed("/prime");
+                  },
+                  icon: const Icon(MdiIcons.alphaPCircleOutline),
+                ),
                 IconButton(
                   onPressed: () {
                     if (snapshot.hasData) {
@@ -83,13 +81,13 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
             body: ListView(
               children: const [
                 // OffersCarousel(),
-                ShoppingCatW(),
+                // ShoppingCatW(),
                 SizedBox(height: 10),
                 ProductsGridList(),
                 SizedBox(height: 60),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("V_1.0.4\nDated 23 Aug 2022, 03:38pm"),
+                  child: Text("V_1.0.5\nDated 27 Aug 2022, 11:19pm"),
                 ),
                 SizedBox(height: 10),
                 PoliciesPortion(),
@@ -102,34 +100,32 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
   Widget cartBadge() {
     var cartIcon = const Icon(MdiIcons.cart);
 
-    return  UserCartGate(
-      builder: (userCartCR) {
-        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: userCartCR.limit(6).snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                if (snapshot.data!.docs.length > 5) {
-                  return Badge(
-                      badgeColor: Colors.purple,
-                      badgeContent: const Text(
-                        "5+",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      child: cartIcon);
-                } else {
-                  return Badge(
-                      badgeColor: Colors.purple,
-                      badgeContent: Text(
-                        snapshot.data!.docs.length.toString(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      child: cartIcon);
-                }
+    return UserCartGate(builder: (userCartCR) {
+      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: userCartCR.limit(6).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+              if (snapshot.data!.docs.length > 5) {
+                return Badge(
+                    badgeColor: Colors.purple,
+                    badgeContent: const Text(
+                      "5+",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    child: cartIcon);
+              } else {
+                return Badge(
+                    badgeColor: Colors.purple,
+                    badgeContent: Text(
+                      snapshot.data!.docs.length.toString(),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    child: cartIcon);
               }
-              return cartIcon;
-            });
-      }
-    );
+            }
+            return cartIcon;
+          });
+    });
   }
 
   Widget drawerItems() {

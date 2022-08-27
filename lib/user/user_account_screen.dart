@@ -1,9 +1,9 @@
+import 'package:advaithaunnathi/prime_screens/prime_login_screen.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/Prime%20models/razor_model.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
-import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
 import 'package:advaithaunnathi/prime_screens/registration_screen.dart';
 import 'package:advaithaunnathi/shopping/addresses/list_addresses_widget.dart';
 import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
@@ -61,20 +61,8 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
             avatar: const Icon(MdiIcons.accountGroupOutline),
             title: TextButton(
                 onPressed: () async {
-                  isLoading.value = true;
-                  var rm = await regMOs.checkAndGetRM();
-
-                  if (rm?.orderID == null || rm?.refMemberId == null) {
-                    Get.to(() => const PrimeRegistrationScreen0());
-                    isLoading.value = false;
-                  } else if (rm?.isPaid == true && rm?.refMemberId != null) {
-                    await userMOs.checkAndAddPos(rm!.refMemberId!);
-                    Get.to(() => const PrimeHomeScreen());
-                    isLoading.value = false;
-                  } else {
-                    bottomSheet(rm!);
-                    isLoading.value = false;
-                  }
+                  await waitMilli();
+                  Get.to(() => const PrimeLoginScreen());
                 },
                 child: Obx(() => isLoading.value
                     ? const Text("Loading....")
@@ -88,7 +76,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
               isLoading.value = true;
               await fireLogOut();
               isLoading.value = false;
-              Get.offAll(() => const ShoppingScreenHomePage(null));
+              Get.offAll(() => const ShoppingScreenHomePage());
             },
           ),
         ],

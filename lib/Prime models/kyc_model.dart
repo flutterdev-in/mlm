@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 import '../dart/rx_variables.dart';
+import 'prime_member_model.dart';
 
 class KycModel {
   String? aadhaarUrl;
@@ -101,11 +102,8 @@ class KycModelObjects {
   final verified = "verified";
   final invalid = "invalid";
   final uploaded = "uploaded";
-  DocumentReference<Map<String, dynamic>>? kycDR() {
-    if (fireUser() != null) {
-      return authUserCR.doc(fireUser()!.uid).collection(docs).doc(kyc);
-    }
-    return null;
+  DocumentReference<Map<String, dynamic>> kycDR(PrimeMemberModel pmm) {
+    return pmm.docRef!.collection("docs").doc(kyc);
   }
 
   bool isKycVrf(KycModel km) {
@@ -135,7 +133,10 @@ class KycModelObjects {
   }
 
   //
-  Future<void> pickPhoto(ImageSource source, String photoName) async {
+  Future<void> pickPhoto(
+      {required ImageSource source,
+      required String photoName,
+      required PrimeMemberModel pmm}) async {
     await imagePicker.pickImage(source: source).then((photo) async {
       if (photo != null && fireUser() != null) {
         isLoading.value = true;
@@ -145,14 +146,13 @@ class KycModelObjects {
         ).then((compressedFile) async {
           final storageRef = FirebaseStorage.instance.ref();
 
-          final userSR = storageRef
-              .child(authUsers)
-              .child(fireUser()!.uid)
+          final primeUserSR = storageRef
+              .child(primeMOs.primeMembers)
+              .child(pmm.userName!)
               .child("$photoName.jpg");
-          await userSR.putFile(compressedFile).then((ts) async {
+          await primeUserSR.putFile(compressedFile).then((ts) async {
             await ts.ref.getDownloadURL().then((url) async {
-              // rxPhoto.value = url;
-              await kycDR()?.set({
+              await kycDR(pmm).set({
                 photoName: url,
                 getCorresBoolName(photoName) ?? "error": uploaded,
               }, SetOptions(merge: true));

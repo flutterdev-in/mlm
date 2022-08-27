@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:razorpay_web/razorpay_web.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../hive/hive_boxes.dart';
@@ -76,8 +77,8 @@ class PrimeMemberModel {
       email: userMap[primeMOs.email],
       phoneNumber: userMap[primeMOs.phoneNumber],
       refMemberId: userMap[primeMOs.refMemberId],
-      paymentTime: userMap[primeMOs.paymentTime],
-      directIncome: userMap[primeMOs.directIncome]??0,
+      paymentTime: userMap[primeMOs.paymentTime]?.toDate(),
+      directIncome: userMap[primeMOs.directIncome] ?? 0,
       orderID: userMap[primeMOs.orderID],
       isPaid: userMap[primeMOs.isPaid],
       interestedIn: userMap[primeMOs.interestedIn],
@@ -114,6 +115,11 @@ class PrimeMemberModelObjects {
   final primeMembers = "primeMembers";
 
   //
+  final amount = 100000;
+  final razorpay = Razorpay();
+  final razorKey = "rzp_live_yCBJw6q6PHaIpJ";
+
+  //
   String dateTime(DateTime time) {
     String ampm = DateFormat("a").format(time).toLowerCase();
     String chatDayTime = DateFormat("dd MMM").format(time);
@@ -132,22 +138,20 @@ class PrimeMemberModelObjects {
     return FirebaseFirestore.instance.collection(primeMembers);
   }
 
-  Future<void> checkAndAddPos(String userName0) async {
-    await primeMembersCR().doc(userName0).get().then((ds) async {
-      if (ds.exists && ds.data() != null) {
-        var pmm = PrimeMemberModel.fromMap(ds.data()!);
-        if (pmm.memberPosition == null &&
-            pmm.isPaid == true &&
-            pmm.refMemberId != null &&
-            pmm.memberID != null) {
-          HttpsCallable addPos =
-              FirebaseFunctions.instance.httpsCallable('add_prime_position');
-          await addPos.call(<String, dynamic>{
-            "uid": userName0,
-          });
-        }
-      }
-    });
+  Future<void> addPrimePosition(PrimeMemberModel pmm) async {
+    if (pmm.userName != null &&
+        pmm.memberPosition == null &&
+        pmm.isPaid == true &&
+        pmm.refMemberId != null &&
+        pmm.memberID != null) {
+      HttpsCallable addPos =
+          FirebaseFunctions.instance.httpsCallable('add_prime_position');
+      await addPos.call(<String, dynamic>{
+        "uid": pmm.userName!,
+      });
+    } else {
+      Get.snackbar("Error", "Invalid user credentials");
+    }
   }
 
   Future<PrimeMemberModel?> getPrimeMemberModel(String userName0) async {
@@ -161,8 +165,7 @@ class PrimeMemberModelObjects {
     });
   }
 
-  DocumentReference<Map<String, dynamic>> primeMemberDR(
-      String userName0)  {
+  DocumentReference<Map<String, dynamic>> primeMemberDR(String userName0) {
     return primeMembersCR().doc(userName0);
   }
 
@@ -171,6 +174,70 @@ class PrimeMemberModelObjects {
       Share.share("https://myshopau.com/referral/${pmm.memberID}");
     } else {
       Get.snackbar("Network error", "Please try again");
+    }
+  }
+
+  Future<bool> checkUpdateAndGetOrderStatus(String userName) async {
+    var isPaid = false;
+    await primeMemberDR(userName).get().then((ds) async {
+      if (ds.exists && ds.data() != null) {
+        var pmm = PrimeMemberModel.fromMap(ds.data()!);
+        pmm.docRef = ds.reference;
+
+        if (pmm.orderID != null && pmm.isPaid != true) {
+          HttpsCallable checkOrderStatus =
+              FirebaseFunctions.instance.httpsCallable('orderStutus');
+          var status = await checkOrderStatus.call(<String, dynamic>{
+            "orderId": pmm.orderID,
+          });
+          if (status.data == "paid") {
+            isPaid = true;
+            pmm.isPaid = true;
+            await addPrimePosition(pmm);
+            await pmm.docRef!.update(pmm.toMap());
+          } else if (pmm.isPaid == null && (status.data == "attempted")) {
+            pmm.isPaid = false;
+            await pmm.docRef!.update(pmm.toMap());
+          }
+        }
+      }
+    });
+    return isPaid;
+  }
+
+  //
+  void razorInIt(String userName) async {
+    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
+        (PaymentSuccessResponse response) async {
+      var isPaid = await checkUpdateAndGetOrderStatus(userName);
+      if (isPaid) {
+        Get.snackbar("Payment success", "Proceed to prime");
+      } else {
+        Get.snackbar("Fetching payment...", "Please check status");
+      }
+    });
+    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR,
+        (PaymentFailureResponse response) {
+      Get.snackbar("Payment Error", "Please try again");
+    });
+  }
+
+  //
+  void razorOrder(PrimeMemberModel pmm) {
+    if (pmm.orderID != null && pmm.phoneNumber != null && pmm.email != null) {
+      razorpay.open({
+        'key': razorKey,
+        'amount': amount, //in the smallest currency sub-unit.
+        'name': 'My Shop AU',
+        'order_id': pmm.orderID!, // Generate order_id using Orders API
+
+        'prefill': {
+          'contact': pmm.phoneNumber!,
+          'email': pmm.email!,
+        }
+      });
+    } else {
+      Get.snackbar("Error", "Invalid user credentials");
     }
   }
 }

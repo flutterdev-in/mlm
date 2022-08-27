@@ -5,14 +5,14 @@ import 'package:getwidget/getwidget.dart';
 class StreamSingleQueryBuilder extends StatelessWidget {
   final Query<Map<String, dynamic>> query;
   final Widget Function(
-      BuildContext, QueryDocumentSnapshot<Map<String, dynamic>>) docBuilder;
+      QueryDocumentSnapshot<Map<String, dynamic>>) builder;
   final Widget? loadingW;
   final Widget? noResultsW;
   final Widget? errorW;
   const StreamSingleQueryBuilder({
     Key? key,
     required this.query,
-    required this.docBuilder,
+    required this.builder,
     this.loadingW,
     this.noResultsW,
     this.errorW,
@@ -30,7 +30,7 @@ class StreamSingleQueryBuilder extends StatelessWidget {
             return noResultsW ?? const Text("Data not exits");
           }
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            return docBuilder(context, snapshot.data!.docs.first);
+            return builder(snapshot.data!.docs.first);
           }
           return loadingW ?? const GFLoader();
         });

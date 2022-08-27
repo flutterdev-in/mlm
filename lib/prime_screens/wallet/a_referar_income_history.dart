@@ -1,12 +1,13 @@
+import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
-import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/user_model.dart';
 
 class ReferalBenefitsScreen extends StatefulWidget {
-  const ReferalBenefitsScreen({Key? key}) : super(key: key);
+  PrimeMemberModel pmm;
+  ReferalBenefitsScreen(this.pmm, {Key? key}) : super(key: key);
 
   @override
   State<ReferalBenefitsScreen> createState() => _ReferalBenefitsScreenState();
@@ -42,10 +43,10 @@ class _ReferalBenefitsScreenState extends State<ReferalBenefitsScreen>
         controller: tabC,
         children: [
           StreamDocBuilder(
-            docRef: authUserCR.doc(fireUser()!.uid),
-            docBuilder: (context, snapshot) {
-              var um = UserModel.fromMap(snapshot.data()!);
-              return DirectIncomeHistory(um);
+            docRef: widget.pmm.docRef!,
+            builder: (snapshot) {
+             widget. pmm = PrimeMemberModel.fromMap(snapshot.data()!);
+              return DirectIncomeHistory(widget.pmm);
             },
           ),
           const Padding(

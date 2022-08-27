@@ -355,7 +355,7 @@ class _PrimeRegistrationScreen0State extends State<PrimeRegistrationScreen0> {
         ),
         StreamSingleQueryBuilder(
           query: authUserCR.where(userMOs.memberID, isEqualTo: refID),
-          docBuilder: (p0, qds) {
+          builder: (qds) {
             var um = UserModel.fromMap(qds.data());
             if (um.memberPosition != null) {
               isRefValid = true;

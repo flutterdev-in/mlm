@@ -1,15 +1,15 @@
 import 'package:advaithaunnathi/custom%20widgets/firestore_listview_builder.dart';
-import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
+import '../../Prime models/prime_member_model.dart';
 import '../../model/user_model.dart';
 
 class DirectIncomeHistory extends StatelessWidget {
-  final UserModel um;
+  final PrimeMemberModel pmm;
   final bool wantAppBar;
-  const DirectIncomeHistory(this.um, {Key? key, this.wantAppBar = false})
+  const DirectIncomeHistory(this.pmm, {Key? key, this.wantAppBar = false})
       : super(key: key);
 
   @override
@@ -17,8 +17,9 @@ class DirectIncomeHistory extends StatelessWidget {
     return Scaffold(
       appBar: wantAppBar ? AppBar(title: const Text("Direct referals")) : null,
       body: FirestoreListViewBuilder(
-        query: authUserCR
-            .where(userMOs.refMemberId, isEqualTo: um.memberID)
+        query: primeMOs
+            .primeMembersCR()
+            .where(userMOs.refMemberId, isEqualTo: pmm.memberID)
             .orderBy(userMOs.memberPosition, descending: false),
         builder: (context, snapshot) {
           var umMem = UserModel.fromMap(snapshot.data());

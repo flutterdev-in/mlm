@@ -1,12 +1,17 @@
 import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/dart/text_formatters.dart';
 import 'package:advaithaunnathi/dart/useful_functions.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
+import 'package:advaithaunnathi/hive/hive_boxes.dart';
+import 'package:advaithaunnathi/prime_screens/prime_home_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import 'prime_payment_page.dart';
 
 class PrimeLoginScreen extends StatefulWidget {
   const PrimeLoginScreen({Key? key}) : super(key: key);
@@ -69,6 +74,10 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
   }
 
   Widget userName() {
+    var un = servicesBox.get(primeMOs.userName) as String?;
+    var tc = TextEditingController();
+    tc.text = un ?? "";
+    userNm = un;
     return Row(
       children: [
         const Icon(MdiIcons.accountQuestion),
@@ -84,6 +93,10 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
 
             return TextField(
               maxLines: 1,
+              autofocus: true,
+              controller: tc,
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.name,
               inputFormatters: [LowerCaseTextFormatter()],
               decoration: InputDecoration(
                 labelText: "User Name",
@@ -93,15 +106,16 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
               ),
               onChanged: (txt) async {
                 userNm = null;
+                txt.toLowerCase().trim();
                 errorUserName.value = "";
                 afterDebounce(after: () async {
                   if (txt.length < 6) {
                     errorUserName.value =
                         "User name contains minimum 6 characters";
-                  } else if (txt.length > 15) {
+                  } else if (txt.length > 20) {
                     errorUserName.value =
-                        "User name contains maximum 15 characters";
-                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,15}$'))) {
+                        "User name contains maximum 20 characters";
+                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,20}$'))) {
                     userNm = txt.toLowerCase();
                     errorUserName.value = "valid-";
                   } else {
@@ -118,6 +132,7 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
   }
 
   Widget password() {
+    var obscureTxt = false.obs;
     return Row(
       children: [
         const Icon(MdiIcons.lockOutline),
@@ -132,8 +147,17 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
 
             return TextField(
               maxLines: 1,
+              obscureText: obscureTxt.value,
+              textInputAction: TextInputAction.go,
+              keyboardType: TextInputType.name,
               inputFormatters: [LowerCaseTextFormatter()],
               decoration: InputDecoration(
+                suffixIcon: TextButton(
+                    onPressed: () async {
+                      await waitMilli(250);
+                      obscureTxt.value = !obscureTxt.value;
+                    },
+                    child: Text(obscureTxt.value ? "show" : "hide")),
                 labelText: "Enter Password",
                 errorText: error.isNotEmpty
                     ? isValid
@@ -157,6 +181,9 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
                   }
                 });
               },
+              onSubmitted: (value) async {
+                await onSubmit();
+              },
             );
           }),
         ),
@@ -176,27 +203,61 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
             alignment: Alignment.topCenter,
             child: ElevatedButton(
                 onPressed: () async {
-                  if (userNm != null && pswd != null) {
-                    await primeMOs.primeMemberDR(userNm!).get().then((ds) {
-                      if (ds.exists && ds.data() != null) {
-                        var pmm = PrimeMemberModel.fromMap(ds.data()!);
-                        if (pmm.userPassword != pswd) {
-                          pswd = null;
-                          errorPassword.value = "Incorrect Password";
-                        }
-                      } else {
-                        userNm = null;
-                        errorUserName.value = "Incorrect User Name";
-                      }
-                    });
-                  }
+                  await onSubmit();
                 },
-                child: isLoading.value
-                    ? const Text("Loading....")
-                    : const Text("   Login   ")),
+                child: SizedBox(
+                    width: 100,
+                    child: Center(
+                        child: isLoading.value
+                            ? const Text("Loading....")
+                            : const Text("Login")))),
           ),
         ),
       ],
     );
+  }
+
+  Future<void> onSubmit() async {
+    isLoading.value = true;
+    if (userNm != null && pswd != null) {
+      await primeMOs.primeMemberDR(userNm!).get().then((ds) async {
+        if (ds.exists && ds.data() != null) {
+          var pmm = PrimeMemberModel.fromMap(ds.data()!);
+          pmm.docRef = ds.reference;
+
+          if (pmm.userPassword != pswd) {
+            pswd = null;
+            errorPassword.value = "Incorrect Password";
+          } else {
+            errorPassword.value = "Incorrectdd";
+            await onValid(pmm);
+          }
+        } else {
+          userNm = null;
+          errorUserName.value = "Incorrect User Name";
+        }
+      });
+    } else if (userNm == null) {
+      errorUserName.value = "Please enter User Name";
+    } else if (pswd == null) {
+      errorPassword.value = "Please enter Password";
+    }
+
+    isLoading.value = false;
+  }
+
+  Future<void> onValid(PrimeMemberModel pmm) async {
+    servicesBox.put(primeMOs.userName, pmm.userName);
+    if (pmm.isPaid != true || pmm.memberPosition == null) {
+      var isPaid = await primeMOs.checkUpdateAndGetOrderStatus(pmm.userName!);
+      if (isPaid) {
+        var pm = await primeMOs.getPrimeMemberModel(pmm.userName!);
+        Get.to(() => PrimeHomeScreen(pm ?? pmm));
+      } else {
+        Get.to(() => PrimePaymentPage(pmm));
+      }
+    } else {
+      Get.to(() => PrimeHomeScreen(pmm));
+    }
   }
 }

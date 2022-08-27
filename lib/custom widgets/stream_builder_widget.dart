@@ -5,15 +5,15 @@ import 'package:getwidget/getwidget.dart';
 class StreamDocBuilder extends StatelessWidget {
   final DocumentReference<Map<String, dynamic>> docRef;
   final Widget Function(
-          BuildContext context, DocumentSnapshot<Map<String, dynamic>> docSnap)
-      docBuilder;
+          DocumentSnapshot<Map<String, dynamic>> docSnap)
+      builder;
   final Widget? loadingW;
   final Widget? noResultsW;
   final Widget? errorW;
   const StreamDocBuilder({
     Key? key,
     required this.docRef,
-    required this.docBuilder,
+    required this.builder,
     this.loadingW,
     this.noResultsW,
     this.errorW,
@@ -35,7 +35,7 @@ class StreamDocBuilder extends StatelessWidget {
           if (snapshot.hasData &&
               snapshot.data!.exists &&
               snapshot.data!.data() != null) {
-            return docBuilder(context, snapshot.data!);
+            return builder(snapshot.data!);
           }
 
           return loadingW ?? const GFLoader();

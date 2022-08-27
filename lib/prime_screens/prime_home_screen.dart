@@ -1,3 +1,4 @@
+import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
@@ -9,11 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../services/firebase.dart';
-import '../model/user_model.dart';
-
 class PrimeHomeScreen extends StatelessWidget {
-  const PrimeHomeScreen({Key? key}) : super(key: key);
+  final PrimeMemberModel pmm;
+  const PrimeHomeScreen(this.pmm, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +42,8 @@ class PrimeHomeScreen extends StatelessWidget {
             const Text("|"),
             TextButton(
                 onPressed: () async {
-                  UserModel? um;
-                  await authUserCR.doc(fireUser()?.uid).get().then((ds) async {
-                    if (ds.exists && ds.data() != null) {
-                      um = UserModel.fromMap(ds.data()!);
-                    }
-                  }).then((value) => userMOs.shareRefLink(um));
+                  await waitMilli();
+                  primeMOs.shareRefLink(pmm);
                 },
                 child: const Text("REFER")),
           ]),
@@ -151,7 +146,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     waitMilli(120);
-                    Get.to(() => const WalletHomeScreen());
+                    Get.to(() => WalletHomeScreen(pmm));
                   },
                   child: Row(
                     children: const [
@@ -162,15 +157,8 @@ class PrimeHomeScreen extends StatelessWidget {
                   )),
               TextButton(
                   onPressed: () async {
-                    await authUserCR
-                        .doc(fireUser()?.uid)
-                        .get()
-                        .then((ds) async {
-                      if (ds.exists && ds.data() != null) {
-                        var um = UserModel.fromMap(ds.data()!);
-                        Get.to(() => DirectIncomeHistory(um));
-                      }
-                    });
+                    await waitMilli();
+                    Get.to(() => DirectIncomeHistory(pmm));
                   },
                   child: Row(
                     children: const [
@@ -181,7 +169,7 @@ class PrimeHomeScreen extends StatelessWidget {
                   )),
               TextButton(
                   onPressed: () {
-                    Get.to(() => const KycRegScreen());
+                    Get.to(() => KycRegScreen(pmm));
                   },
                   child: Row(
                     children: const [
@@ -193,7 +181,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.offAll(() => const ShoppingScreenHomePage(null));
+                    Get.offAll(() => const ShoppingScreenHomePage());
                   },
                   child: Row(
                     children: const [
@@ -205,7 +193,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.offAll(() => const ShoppingScreenHomePage(null));
+                    Get.offAll(() => const ShoppingScreenHomePage());
                   },
                   child: Row(
                     children: const [

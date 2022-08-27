@@ -1,18 +1,16 @@
 import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
-import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
+import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
 import 'package:advaithaunnathi/dart/text_formatters.dart';
 import 'package:advaithaunnathi/dart/useful_functions.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/policies/policies_card.dart';
-import 'package:advaithaunnathi/prime_screens/prime_login_screen.dart';
+import 'package:advaithaunnathi/prime_screens/prime_payment_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import '../hive/hive_boxes.dart';
 
 class PrimeRegistrationScreen extends StatefulWidget {
   const PrimeRegistrationScreen({Key? key}) : super(key: key);
@@ -25,7 +23,7 @@ class PrimeRegistrationScreen extends StatefulWidget {
 class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   @override
   void initState() {
-    servicesBox.put(primeMOs.refMemberId, Get.parameters[primeMOs.refMemberId]);
+    // servicesBox.put(primeMOs.refMemberId, Get.parameters[primeMOs.refMemberId]);
     super.initState();
   }
 
@@ -141,7 +139,9 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
         Expanded(
           child: Obx(() => TextField(
                 maxLines: 1,
-                controller: TextEditingController(text: pmm.firstName),
+                controller: tc,
+                keyboardType: TextInputType.name,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: "First Name",
                   errorText: errorFirstName.value.isNotEmpty
@@ -151,6 +151,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                 onChanged: (txt) {
                   pmm.firstName = null;
                   errorFirstName.value = "";
+                  txt.trim();
                   afterDebounce(after: () async {
                     if (txt.length > 4) {
                       pmm.firstName = txt;
@@ -177,6 +178,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
           child: Obx(() => TextField(
                 controller: tc,
                 maxLines: 1,
+                keyboardType: TextInputType.name,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: "Last Name / Surname",
                   errorText: errorLastName.value.isNotEmpty
@@ -214,6 +217,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
                 maxLines: 1,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: "Phone number",
                   errorText: errorPhoneNumber.value.isNotEmpty
@@ -254,6 +258,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
           child: Obx(() => TextField(
                 controller: tc,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 maxLines: 1,
                 decoration: InputDecoration(
                   labelText: "Email address",
@@ -295,6 +300,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             return TextField(
               maxLines: 1,
               controller: tc,
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
               inputFormatters: [LowerCaseTextFormatter()],
               decoration: InputDecoration(
                 labelText: "User Name",
@@ -311,8 +318,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                         "User name contains minimum 6 characters";
                   } else if (txt.length > 15) {
                     errorUserName.value =
-                        "User name contains maximum 15 characters";
-                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,15}$'))) {
+                        "User name contains maximum 20 characters";
+                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,20}$'))) {
                     errorUserName.value = "Please wait...";
                     await primeMOs.primeMemberDR(txt).get().then((ds) {
                       if (ds.exists && ds.data() != null) {
@@ -356,6 +363,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                 return TextField(
                   maxLines: 1,
                   controller: ftc,
+                  keyboardType: TextInputType.name,
+                  textInputAction: TextInputAction.next,
                   inputFormatters: [LowerCaseTextFormatter()],
                   decoration: InputDecoration(
                     labelText: "Enter Password",
@@ -408,6 +417,8 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                 return TextField(
                   maxLines: 1,
                   controller: ctc,
+                  keyboardType: TextInputType.name,
+                  textInputAction: TextInputAction.go,
                   inputFormatters: [LowerCaseTextFormatter()],
                   decoration: InputDecoration(
                     labelText: "Confirm Password",
@@ -497,7 +508,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   }
 
   Widget refIdW() {
-    String? refID = servicesBox.get(primeMOs.refMemberId);
+    String? refID = Get.parameters[primeMOs.refMemberId] ?? "AU6293CG";
     return Column(
       children: [
         Row(
@@ -516,16 +527,18 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
             ),
           ],
         ),
-        StreamDocBuilder(
-          docRef: primeMOs.primeMemberDR(refID ?? "xxx"),
-          docBuilder: (context, docSnap) {
-            var pmm0 = PrimeMemberModel.fromMap(docSnap.data()!);
+        StreamSingleQueryBuilder(
+          query: primeMOs
+              .primeMembersCR()
+              .where(primeMOs.memberID, isEqualTo: refID),
+          builder: (docSnap) {
+            var pmm0 = PrimeMemberModel.fromMap(docSnap.data());
             if (refID != "xxx" &&
                 pmm0.memberPosition != null &&
                 pmm0.isPaid == true) {
               pmm.refMemberId = refID;
               return Text(
-                "Your refferer is '${pmm0.firstName} ${pmm0.lastName}'",
+                "Your referrer is '${pmm0.firstName} ${pmm0.lastName}'",
                 style: const TextStyle(color: Colors.green),
               );
             } else {
@@ -547,20 +560,22 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
       color: Colors.brown.shade50,
       child: Column(
         children: [
-          RichText(
-            text: TextSpan(
-                text: 'By signing up, you agree to our ',
-                style: const TextStyle(color: Colors.black, fontSize: 18),
-                children: <TextSpan>[
-                  TextSpan(
-                      text: 'Terms and Privacy Policy',
-                      style: const TextStyle(
-                          color: Colors.blueAccent, fontSize: 18),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Get.to(() => const PolicyScreen(
-                              "Terms and Privacy Policy",
-                              '''Membership Eligibility\n
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: RichText(
+              text: TextSpan(
+                  text: 'By signing up, you agree to our ',
+                  style: const TextStyle(color: Colors.black, fontSize: 18),
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: 'Terms and Privacy Policy',
+                        style: const TextStyle(
+                            color: Colors.blueAccent, fontSize: 18),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Get.to(() => const PolicyScreen(
+                                "Terms and Privacy Policy",
+                                '''Membership Eligibility\n
 Transaction on the Platform is available only to persons who can form legally binding contracts
 under Indian Contract Act, 1872. Persons who are "incompetent to contract" within the meaning of
 the Indian Contract Act, 1872 including un-discharged insolvents etc. are not eligible to use the
@@ -590,28 +605,37 @@ to update Your revised mobile phone number and/or e-mail address on the Website 
 If You share or allow others to have access to Your account on the Platform (“Account”), by creating
 separate profiles under Your Account, or otherwise, they will be able to view and access YourAccount information. You shall be solely liable and responsible for all the activities undertaken
 under Your Account, and any consequences therefrom.'''));
-                        })
-                ]),
+                          })
+                  ]),
+            ),
           ),
           Obx(
             () => Align(
               alignment: Alignment.topCenter,
               child: ElevatedButton(
-                  onPressed: () async {
-                    if (isAllTrue()) {
-                      isLoading.value = true;
-                      await primeMOs
-                          .primeMemberDR(pmm.userName!)
-                          .set(pmm.toMap(), SetOptions(merge: true));
-                      isLoading.value = false;
-                      Get.offAll(() => const PrimeLoginScreen());
-                    } else {
-                      bottomSheet();
-                    }
-                  },
-                  child: isLoading.value
-                      ? const Text("Loading....")
-                      : const Text("Sign up")),
+                onPressed: () async {
+                  if (isAllTrue()) {
+                    isLoading.value = true;
+                    await primeMOs
+                        .primeMemberDR(pmm.userName!)
+                        .set(pmm.toMap(), SetOptions(merge: true));
+                    pmm.docRef = primeMOs.primeMemberDR(pmm.userName!);
+                    isLoading.value = false;
+                    Get.to(() => PrimePaymentPage(pmm));
+                  } else {
+                    bottomSheet();
+                  }
+                },
+                child: SizedBox(
+                  width: 150,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: isLoading.value
+                        ? const Text("Loading....")
+                        : const Text("Sign up"),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
