@@ -38,7 +38,7 @@ class CartItemsW extends StatelessWidget {
                 var cm = CartModel.fromMap(cartDocSnaps[index].data());
                 cm.thisDR = cartDocSnaps[index].reference;
                 return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: cm.productDoc.snapshots(),
+                    stream: cm.productDR.snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data!.data() != null) {
                         var pm = ProductModel.fromMap(snapshot.data!.data()!);
@@ -92,11 +92,12 @@ class CartItemsW extends StatelessWidget {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.purple,
-                                                  decoration:
-                                                      cm.nos > pm.listPrices!.first.stockAvailable
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null),
+                                                  decoration: cm.nos >
+                                                          pm.listPrices!.first
+                                                              .stockAvailable
+                                                      ? TextDecoration
+                                                          .lineThrough
+                                                      : null),
                                             ),
                                           ),
                                           GFIconButton(
@@ -109,8 +110,12 @@ class CartItemsW extends StatelessWidget {
                                               await Future.delayed(
                                                   const Duration(
                                                       microseconds: 900));
-                                              if (cm.nos < pm.listPrices!.first.maxPerOrder &&
-                                                  cm.nos < pm.listPrices!.first.stockAvailable) {
+                                              if (cm.nos <
+                                                      pm.listPrices!.first
+                                                          .maxPerOrder &&
+                                                  cm.nos <
+                                                      pm.listPrices!.first
+                                                          .stockAvailable) {
                                                 await cm.thisDR!.update(
                                                     {cartMOS.nos: cm.nos + 1});
                                               }
@@ -135,39 +140,53 @@ class CartItemsW extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 15),
                                             if (pm.listPrices != null)
-                            (pm.listPrices!.first.mrp ==
-                                    pm.listPrices!.first.price)
-                                ? Text(
-                                    "\u{20B9}${pm.listPrices?.first.mrp}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text(
-                                        "\u{20B9}${pm.listPrices?.first.price}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                          "\u{20B9}${pm.listPrices?.first.mrp}",
-                                          style: const TextStyle(
-                                              decoration:
-                                                  TextDecoration.lineThrough),
-                                          textScaleFactor: 0.9),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                          "${((1 - pm.listPrices!.first.price! / pm.listPrices!.first.mrp) * 100).toStringAsFixed(0)}% off",
-                                          textScaleFactor: 0.9,
-                                          style: TextStyle(
-                                            color: Colors.deepOrange.shade600,
-                                          )),
-                                    ],
-                                  ),
-                                            if (cm.nos > pm.listPrices!.first.stockAvailable)
+                                              (pm.listPrices!.first.mrp ==
+                                                      pm.listPrices!.first
+                                                          .price)
+                                                  ? Text(
+                                                      "\u{20B9}${pm.listPrices?.first.mrp}",
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  : Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          "\u{20B9}${pm.listPrices?.first.price}",
+                                                          style: const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 2),
+                                                        Text(
+                                                            "\u{20B9}${pm.listPrices?.first.mrp}",
+                                                            style: const TextStyle(
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .lineThrough),
+                                                            textScaleFactor:
+                                                                0.9),
+                                                        const SizedBox(
+                                                            width: 3),
+                                                        Text(
+                                                            "${((1 - pm.listPrices!.first.price! / pm.listPrices!.first.mrp) * 100).toStringAsFixed(0)}% off",
+                                                            textScaleFactor:
+                                                                0.9,
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .deepOrange
+                                                                  .shade600,
+                                                            )),
+                                                      ],
+                                                    ),
+                                            if (cm.nos >
+                                                pm.listPrices!.first
+                                                    .stockAvailable)
                                               const Padding(
                                                 padding: EdgeInsets.fromLTRB(
                                                     10, 8, 0, 0),
@@ -292,10 +311,11 @@ class CartItemsW extends StatelessWidget {
     num totalMrp = 0;
     for (var i in cartDocSnaps) {
       var cm = CartModel.fromMap(i.data());
-      await cm.productDoc.get().then((ds) async {
+      await cm.productDR.get().then((ds) async {
         if (ds.exists) {
           var pm = ProductModel.fromMap(ds.data()!);
-          finalPrice += cm.nos * (pm.listPrices?.first.price ?? pm.listPrices?.first.mrp??0);
+          finalPrice += cm.nos *
+              (pm.listPrices?.first.price ?? pm.listPrices?.first.mrp ?? 0);
           totalMrp += cm.nos * pm.listPrices!.first.mrp;
           if (cm.nos > pm.listPrices!.first.stockAvailable) {
             isOutOfStock.value = true;

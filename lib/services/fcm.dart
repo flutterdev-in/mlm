@@ -66,12 +66,8 @@ class FCMfunctions {
                   : null,
               dismissDirection: DismissDirection.horizontal,
               snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.white, onTap: (snackbar) async {
-            // var crm = await crs
-            //     .chatRoomModelFromChatPersonUID(msgData["chatPersonUID"]);
-            // Get.closeCurrentSnackbar();
-            // Get.to(() => ChatRoomScreen(crm));
-          });
+              backgroundColor: Colors.white,
+              onTap: (snackbar) async {});
         }
       }
     });

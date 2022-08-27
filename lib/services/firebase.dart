@@ -4,17 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../hive/hive_boxes.dart';
-import '../model/cart_model.dart';
-import '../dart/const_global_objects.dart';
-
 const authUsers = "authUsers";
-const nonAuthUsers = "nonAuthUsers";
 
 final authUserCR = FirebaseFirestore.instance.collection(authUsers);
-final nonAuthUserCR = FirebaseFirestore.instance.collection(nonAuthUsers);
+// final nonAuthUserCR = FirebaseFirestore.instance.collection(nonAuthUsers);
 
 //
+
 final storageRef = FirebaseStorage.instance.ref();
 
 User? fireUser() {

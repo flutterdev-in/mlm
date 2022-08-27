@@ -1,9 +1,7 @@
-import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
 import 'package:flutter/material.dart';
-
-import '../../model/user_model.dart';
 
 class ReferalBenefitsScreen extends StatefulWidget {
   PrimeMemberModel pmm;
@@ -45,7 +43,8 @@ class _ReferalBenefitsScreenState extends State<ReferalBenefitsScreen>
           StreamDocBuilder(
             docRef: widget.pmm.docRef!,
             builder: (snapshot) {
-             widget. pmm = PrimeMemberModel.fromMap(snapshot.data()!);
+              widget.pmm = PrimeMemberModel.fromMap(snapshot.data()!);
+              widget.pmm.docRef = snapshot.reference;
               return DirectIncomeHistory(widget.pmm);
             },
           ),

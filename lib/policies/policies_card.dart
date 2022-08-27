@@ -124,6 +124,7 @@ feature, you acknowledge that Advaita and/or its affiliates will collect, store 
             },
             child: Text(
               name,
+              softWrap: true,
               style: const TextStyle(
                 color: Colors.black,
               ),

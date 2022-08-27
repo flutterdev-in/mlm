@@ -27,7 +27,7 @@ class KycModel {
   String accountNumberStatus;
   String ifscStatus;
 
-  bool isKycVerified;
+  bool? isKycVerified;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   KycModel({
@@ -74,7 +74,7 @@ class KycModel {
       panCardStatus: kycMap[kycMOs.panCardStatus] ?? "",
       checkOrPassbookStatus: kycMap[kycMOs.checkOrPassbookStatus] ?? "",
       accountNumberStatus: kycMap[kycMOs.accountNumberStatus] ?? "",
-      isKycVerified: kycMap[kycMOs.isKycVerified] ?? false,
+      isKycVerified: kycMap[kycMOs.isKycVerified] ,
     );
     km.isKycVerified = kycMOs.isKycVrf(km);
     return km;

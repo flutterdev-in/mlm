@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
@@ -158,7 +158,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.to(() => DirectIncomeHistory(pmm));
+                    Get.to(() => DirectIncomeHistory(pmm, wantAppBar: true));
                   },
                   child: Row(
                     children: const [

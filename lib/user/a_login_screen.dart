@@ -61,7 +61,7 @@ Future<void> googleLoginFunction() async {
       Get.snackbar("login", "success");
       // userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
       userMOs.userInit();
-      userMOs.updateCartOfnonAuthUser();
+ 
     }).catchError((e) {
       Get.snackbar("Error while login", "Please try again");
     });
@@ -87,7 +87,7 @@ Future<void> googleLoginFunction() async {
           Get.snackbar("login", "success");
           // userCartCR.value = authUserCR.doc(fireUser()!.uid).collection(cart);
           userMOs.userInit();
-          userMOs.updateCartOfnonAuthUser();
+    
         }).catchError((e) {
           Get.snackbar("Error while login", "Please try again");
         });
@@ -100,15 +100,4 @@ Future<void> googleLoginFunction() async {
   }
 }
 
-// class GoogleSignInScreen extends StatelessWidget {
-//   const GoogleSignInScreen({Key? key}) : super(key: key);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return SignInScreen(providerConfigs: [
-//       GoogleProviderConfiguration(
-//         clientId: DefaultFirebaseOptions.web.appId,
-//       ),
-//     ]);
-//   }
-// }

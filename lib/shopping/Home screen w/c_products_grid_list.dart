@@ -1,18 +1,19 @@
+import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
-import 'package:advaithaunnathi/hive/hive_boxes.dart';
 import 'package:advaithaunnathi/model/cart_model.dart';
 import 'package:advaithaunnathi/model/product_model.dart';
 import 'package:advaithaunnathi/shopping/Product%20screen/product_view_screen.dart';
-import 'package:advaithaunnathi/user/user_cart_stream_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../../custom widgets/auth_stream_builder.dart';
+import '../../custom widgets/stream_single_query_builder.dart';
 
 class ProductsGridList extends StatelessWidget {
   const ProductsGridList({Key? key}) : super(key: key);
@@ -119,19 +120,47 @@ class ProductsGridList extends StatelessWidget {
 
   //
   Widget addToCart(ProductModel pm) {
-    return UserCartGate(builder: (userCartCR) {
-      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: userCartCR
-              .where(cartMOS.productDoc, isEqualTo: pm.docRef!.id)
-              .limit(1)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const GFLoader(type: GFLoaderType.square);
-            }
-            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-              var cm = CartModel.fromMap(snapshot.data!.docs.first.data());
-              cm.thisDR = snapshot.data!.docs.first.reference;
+    var cartW = Align(
+      child: GFButton(
+        position: GFPosition.end,
+        elevation: 0,
+        color: Colors.black87,
+        type: GFButtonType.outline,
+        child: const Text("Add to cart"),
+        onPressed: () async {
+          await Future.delayed(const Duration(microseconds: 900));
+          var cartM = CartModel(
+                  nos: 1,
+                  selectedPriceIndex: 0,
+                  productDR: pm.docRef!,
+                  lastTime: DateTime.now())
+              .toMap();
+          if (fireUser() != null) {
+            await authUserCR
+                .doc(fireUser()!.uid)
+                .collection(cart)
+                .doc(pm.docRef!.id)
+                .set(cartM);
+          } else {
+            bottomBarLogin();
+          }
+        },
+      ),
+    );
+
+    return AuthStreamBuilder(
+        unAuthW: cartW,
+        builder: (user) {
+          return StreamSingleQueryBuilder(
+            noResultsW: cartW,
+            loadingW: cartW,
+            errorW: cartW,
+            query: cartMOS
+                .cartCR(user)
+                .where(cartMOS.productDR, isEqualTo: pm.docRef!.id),
+            builder: (snapshot) {
+              var cm = CartModel.fromMap(snapshot.data());
+              cm.thisDR = snapshot.reference;
               return Column(
                 children: [
                   const SizedBox(height: 5),
@@ -186,45 +215,8 @@ class ProductsGridList extends StatelessWidget {
                   ),
                 ],
               );
-            }
-            return Align(
-              child: GFButton(
-                position: GFPosition.end,
-                elevation: 0,
-                color: Colors.black87,
-                type: GFButtonType.outline,
-                child: const Text("Add to cart"),
-                onPressed: () async {
-                  await Future.delayed(const Duration(microseconds: 900));
-                  var cartM = CartModel(
-                          nos: 1,
-                          selectedPriceIndex: 0,
-                          productDoc: pm.docRef!,
-                          lastTime: DateTime.now())
-                      .toMap();
-                  if (fireUser() != null) {
-                    await authUserCR
-                        .doc(fireUser()!.uid)
-                        .collection(cart)
-                        .doc(pm.docRef!.id)
-                        .set(cartM);
-                  } else if (userBoxUID() != null) {
-                    await nonAuthUserCR
-                        .doc(userBoxUID())
-                        .collection(cart)
-                        .doc(pm.docRef!.id)
-                        .set(cartM);
-                  } else if (userBoxUID() == null) {
-                    await nonAuthUserCR.add({"dummy": null}).then((dr) async {
-                      await userBox.put(boxStrings.userUID, dr.id);
-
-                      await dr.collection(cart).doc(pm.docRef!.id).set(cartM);
-                    });
-                  }
-                },
-              ),
-            );
-          });
-    });
+            },
+          );
+        });
   }
 }

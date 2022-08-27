@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/dart/text_formatters.dart';
 import 'package:advaithaunnathi/dart/useful_functions.dart';

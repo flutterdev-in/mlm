@@ -1,11 +1,11 @@
-import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
+import 'package:advaithaunnathi/custom%20widgets/auth_stream_builder.dart';
+import 'package:advaithaunnathi/custom%20widgets/list_stream_docs_builder.dart';
 import 'package:advaithaunnathi/dart/colors.dart';
-import 'package:advaithaunnathi/services/firebase.dart';
+import 'package:advaithaunnathi/model/cart_model.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/shopping/addresses/address_edit_screen.dart';
 import 'package:advaithaunnathi/shopping/z_cart/cart_items_w.dart';
-import 'package:advaithaunnathi/user/user_cart_stream_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
@@ -26,20 +26,12 @@ class CartScreen extends StatelessWidget {
         height: double.maxFinite,
         width: double.maxFinite,
         color: const Color.fromARGB(10, 0, 0, 0),
-        child: UserCartGate(builder: (userCartCR) {
-          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: userCartCR.snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return const Center(child: Text("Network error"));
-                }
-                if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text("No items in cart"));
-                }
-                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                  return CartItemsW(snapshot.data!.docs);
-                }
-                return const GFLoader(type: GFLoaderType.circle);
+        child: AuthStreamBuilder(builder: (user) {
+          return StreamListDocsBuilder(
+              noResultsW: const Center(child: Text("No items in cart")),
+              query: cartMOS.cartCR(user),
+              builder: (snaps) {
+                return CartItemsW(snaps);
               });
         }),
       ),
@@ -52,36 +44,21 @@ class AddressW extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserCartGate(builder: (userCartCR) {
-      if (userCartCR.path.contains(nonAuthUserCR.path)) {
-        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: addressMOs.addressCR
-                .orderBy(addressMOs.updatedTime, descending: true)
-                .limit(1)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return waitingW();
-              }
-              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                var am = AddressModel.fromMap(snapshot.data!.docs.first.data());
-                return validAaddressW(am);
-              }
-              return addAddressW();
-            });
-      }
-      return GFListTile(
-        color: Colors.cyan,
-        titleText: "Login to add delivery address",
-        icon: const Icon(MdiIcons.gestureDoubleTap),
-        onTap: () async {
-          await Future.delayed(const Duration(milliseconds: 500));
-          if (fireUser() == null) {
-            bottomBarLogin();
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: addressMOs.addressCR
+            .orderBy(addressMOs.updatedTime, descending: true)
+            .limit(1)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return waitingW();
           }
-        },
-      );
-    });
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            var am = AddressModel.fromMap(snapshot.data!.docs.first.data());
+            return validAaddressW(am);
+          }
+          return addAddressW();
+        });
   }
 
   Widget validAaddressW(AddressModel am) {

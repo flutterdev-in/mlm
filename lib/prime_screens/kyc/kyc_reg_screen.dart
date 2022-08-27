@@ -10,8 +10,8 @@ import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../Prime models/kyc_model.dart';
-import '../../Prime models/prime_member_model.dart';
+import '../../model/kyc_model.dart';
+import '../../model/prime_member_model.dart';
 
 class KycRegScreen extends StatelessWidget {
   PrimeMemberModel pmm;
@@ -51,7 +51,7 @@ class KycRegScreen extends StatelessWidget {
                 title: Row(
               children: [
                 const Text("KYC"),
-                if (km.isKycVerified)
+                if (km.isKycVerified == true)
                   const Text(
                     " (Verified)",
                     textScaleFactor: 0.9,

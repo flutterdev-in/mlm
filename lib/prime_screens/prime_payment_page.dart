@@ -1,4 +1,4 @@
-import 'package:advaithaunnathi/Prime%20models/prime_member_model.dart';
+import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:flutter/material.dart';

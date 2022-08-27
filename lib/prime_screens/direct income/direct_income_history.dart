@@ -3,8 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
-import '../../Prime models/prime_member_model.dart';
-import '../../model/user_model.dart';
+import '../../model/prime_member_model.dart';
 
 class DirectIncomeHistory extends StatelessWidget {
   final PrimeMemberModel pmm;
@@ -19,15 +18,16 @@ class DirectIncomeHistory extends StatelessWidget {
       body: FirestoreListViewBuilder(
         query: primeMOs
             .primeMembersCR()
-            .where(userMOs.refMemberId, isEqualTo: pmm.memberID)
-            .orderBy(userMOs.memberPosition, descending: false),
+            .where(primeMOs.refMemberId, isEqualTo: pmm.memberID)
+            .orderBy(primeMOs.memberPosition, descending: false),
         builder: (context, snapshot) {
-          var umMem = UserModel.fromMap(snapshot.data());
+          var refPMM = PrimeMemberModel.fromMap(snapshot.data());
           return GFListTile(
             avatar: GFAvatar(
-                backgroundImage:
-                    CachedNetworkImageProvider(umMem.profilePhotoUrl ?? "")),
-            title: Text(umMem.profileName),
+                backgroundImage: refPMM.profilePhotoUrl != null
+                    ? CachedNetworkImageProvider(refPMM.profilePhotoUrl!)
+                    : null),
+            title: Text(refPMM.name ?? ""),
             icon: const Text("+500"),
           );
         },

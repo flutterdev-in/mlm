@@ -1,37 +1,27 @@
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../hive/hive_boxes.dart';
 
 class UserModel {
-  int? memberPosition;
   String profileName;
-  String? memberID;
+
   String userEmail;
   String? phoneNumber;
-  String? refMemberId;
+
   String? profilePhotoUrl;
-  DateTime? paymentTime;
-  int directIncome;
+
   String? fcmToken;
   DateTime? firstLoginTime;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   UserModel({
-    required this.memberPosition,
     required this.profileName,
-    required this.memberID,
     required this.userEmail,
     required this.phoneNumber,
-    required this.refMemberId,
     required this.profilePhotoUrl,
-    required this.paymentTime,
-    required this.directIncome,
     required this.fcmToken,
     required this.firstLoginTime,
     this.docRef,
@@ -39,15 +29,9 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      userMOs.memberPosition: memberPosition,
       userMOs.profileName: profileName,
       userMOs.userEmail: userEmail,
       userMOs.phoneNumber: phoneNumber,
-      userMOs.memberID: memberID,
-      userMOs.refMemberId: refMemberId,
-      userMOs.paymentTime:
-          paymentTime != null ? Timestamp.fromDate(DateTime.now()) : null,
-      userMOs.directIncome: directIncome,
       userMOs.firstLoginTime:
           Timestamp.fromDate(firstLoginTime ?? DateTime.now()),
       unIndexed: {
@@ -59,14 +43,9 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> userMap) {
     return UserModel(
-      memberPosition: userMap[userMOs.memberPosition],
       profileName: userMap[userMOs.profileName] ?? "",
-      memberID: userMap[userMOs.memberID],
       userEmail: userMap[userMOs.userEmail] ?? "",
       phoneNumber: userMap[userMOs.phoneNumber],
-      refMemberId: userMap[userMOs.refMemberId],
-      paymentTime: userMap[userMOs.paymentTime]?.toDate(),
-      directIncome: userMap[userMOs.directIncome] ?? 0,
       firstLoginTime: userMap[userMOs.firstLoginTime]?.toDate(),
       profilePhotoUrl: userMap[unIndexed] != null
           ? userMap[unIndexed][userMOs.profilePhotoUrl]
@@ -146,20 +125,6 @@ class UserModelObjects {
     await authUserCR.doc(fireUser()?.uid).update(updatedMap);
   }
 
-  Future<void> updateCartOfnonAuthUser() async {
-    if (userBoxUID() != null) {
-      HttpsCallable function = FirebaseFunctions.instance
-          .httpsCallable('update_cart_after_nonAuth_login');
-      await Future.delayed(const Duration(seconds: 3));
-      await function.call(<String, dynamic>{
-        "authID": fireUser()?.uid,
-        "nonAuthID": userBoxUID(),
-      });
-
-      userBox.delete(boxStrings.userUID);
-    }
-  }
-
   // Future<void> addPosition(String refID) async {
   //   HttpsCallable addPos =
   //       FirebaseFunctions.instance.httpsCallable('addPosition');
@@ -168,23 +133,6 @@ class UserModelObjects {
   //     "refMemberId": refID,
   //   });
   // }
-
-  Future<void> checkAndAddPos(String refID) async {
-    
-    await authUserCR.doc(fireUser()?.uid).get().then((ds) async {
-      if (ds.exists && ds.data() != null) {
-        var um = UserModel.fromMap(ds.data()!);
-        if (um.memberPosition == null) {
-          HttpsCallable addPos =
-              FirebaseFunctions.instance.httpsCallable('addPosition');
-          await addPos.call(<String, dynamic>{
-            "uid": fireUser()?.uid,
-            "refMemberId": refID,
-          });
-        }
-      }
-    });
-  }
 
   Future<UserModel?> getUserModel() async {
     return await authUserCR.doc(fireUser()?.uid).get().then((ds) {
@@ -210,15 +158,10 @@ class UserModelObjects {
         if (!ds.exists || ds.data() == null) {
           userDR()!.set(
             UserModel(
-                    memberPosition: null,
                     profileName: fireUser()?.displayName ?? "",
-                    memberID: null,
                     userEmail: fireUser()?.email ?? "",
                     phoneNumber: null,
-                    refMemberId: null,
                     profilePhotoUrl: fireUser()?.photoURL,
-                    paymentTime: null,
-                    directIncome: 0,
                     firstLoginTime: DateTime.now(),
                     fcmToken: null)
                 .toMap(),
@@ -226,14 +169,6 @@ class UserModelObjects {
           );
         }
       });
-    }
-  }
-
-  void shareRefLink(UserModel? um) {
-    if (um != null && um.memberID != null && um.memberPosition != null) {
-      Share.share("https://myshopau.com/referral/${um.memberID}");
-    } else {
-      Get.snackbar("Network error", "Please try again");
     }
   }
 }

@@ -9,6 +9,7 @@ import '../hive/hive_boxes.dart';
 
 class PrimeMemberModel {
   int? memberPosition;
+  String? name;
   String? firstName;
   String? lastName;
   String? memberID;
@@ -30,6 +31,7 @@ class PrimeMemberModel {
 
   PrimeMemberModel({
     required this.memberPosition,
+    this.name,
     required this.firstName,
     required this.lastName,
     required this.memberID,
@@ -69,8 +71,11 @@ class PrimeMemberModel {
   }
 
   factory PrimeMemberModel.fromMap(Map<String, dynamic> userMap) {
+    var fn = userMap[primeMOs.firstName] as String?;
+    var ln = userMap[primeMOs.lastName] as String?;
     return PrimeMemberModel(
       memberPosition: userMap[primeMOs.memberPosition],
+      name: "${fn ?? ''} ${ln ?? ''}",
       firstName: userMap[primeMOs.firstName],
       lastName: userMap[primeMOs.lastName],
       memberID: userMap[primeMOs.memberID],

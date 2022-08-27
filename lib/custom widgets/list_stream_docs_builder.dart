@@ -5,9 +5,8 @@ import 'package:getwidget/components/loader/gf_loader.dart';
 
 class StreamListDocsBuilder extends StatelessWidget {
   final Query<Map<String, dynamic>> query;
-  final Widget Function(
-          BuildContext, List<QueryDocumentSnapshot<Map<String, dynamic>>>)
-      listBuilder;
+  final Widget Function(List<QueryDocumentSnapshot<Map<String, dynamic>>> snaps)
+      builder;
   final Widget? loadingW;
   final Widget? noResultsW;
   final Widget? errorW;
@@ -16,7 +15,7 @@ class StreamListDocsBuilder extends StatelessWidget {
   const StreamListDocsBuilder({
     Key? key,
     required this.query,
-    required this.listBuilder,
+    required this.builder,
     this.loadingW,
     this.noResultsW,
     this.errorW,
@@ -42,7 +41,7 @@ class StreamListDocsBuilder extends StatelessWidget {
             );
           }
           if (snapshot.hasData && snapshot.docs.isNotEmpty) {
-            return listBuilder(context, snapshot.docs);
+            return builder(snapshot.docs);
           }
           return loadingW ?? const GFLoader();
         });
