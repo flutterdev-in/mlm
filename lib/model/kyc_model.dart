@@ -74,7 +74,7 @@ class KycModel {
       panCardStatus: kycMap[kycMOs.panCardStatus] ?? "",
       checkOrPassbookStatus: kycMap[kycMOs.checkOrPassbookStatus] ?? "",
       accountNumberStatus: kycMap[kycMOs.accountNumberStatus] ?? "",
-      isKycVerified: kycMap[kycMOs.isKycVerified] ,
+      isKycVerified: kycMap[kycMOs.isKycVerified],
     );
     km.isKycVerified = kycMOs.isKycVrf(km);
     return km;
@@ -119,6 +119,17 @@ class KycModelObjects {
         km.accountNumberStatus == kycMOs.verified);
 
     return isAllUploaded && isAllVerified;
+  }
+
+  //
+  Future<bool?> isPrimeKycVerified(PrimeMemberModel pmm) async {
+    return await kycDR(pmm).get().then((ds) {
+      if (ds.exists && ds.data() != null) {
+        var km = KycModel.fromMap(ds.data()!);
+        return km.isKycVerified;
+      }
+      return null;
+    });
   }
 
   String? getCorresBoolName(String name) {

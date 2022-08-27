@@ -170,6 +170,22 @@ class PrimeMemberModelObjects {
     });
   }
 
+  //
+  Future<PrimeMemberModel?> getLastPrimeMemberModel() async {
+    return primeMembersCR()
+        .orderBy(primeMOs.memberPosition, descending: true)
+        .limit(1)
+        .get()
+        .then(((qs) {
+      if (qs.docs.isNotEmpty) {
+        return PrimeMemberModel.fromMap(qs.docs.first.data());
+      }
+      return null;
+    }));
+  }
+
+  //
+
   DocumentReference<Map<String, dynamic>> primeMemberDR(String userName0) {
     return primeMembersCR().doc(userName0);
   }

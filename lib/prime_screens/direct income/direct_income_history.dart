@@ -19,7 +19,8 @@ class DirectIncomeHistory extends StatelessWidget {
         query: primeMOs
             .primeMembersCR()
             .where(primeMOs.refMemberId, isEqualTo: pmm.memberID)
-            .orderBy(primeMOs.memberPosition, descending: false),
+            .where(primeMOs.memberPosition, isNull: false)
+            .orderBy(primeMOs.memberPosition, descending: true),
         builder: (context, snapshot) {
           var refPMM = PrimeMemberModel.fromMap(snapshot.data());
           return GFListTile(

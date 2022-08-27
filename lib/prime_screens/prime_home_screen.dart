@@ -1,4 +1,3 @@
-import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
@@ -9,6 +8,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../model/prime_member_model.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
   final PrimeMemberModel pmm;
@@ -145,8 +146,8 @@ class PrimeHomeScreen extends StatelessWidget {
                   )),
               TextButton(
                   onPressed: () async {
-                    waitMilli(120);
-                    Get.to(() => WalletHomeScreen(pmm));
+                    await waitMilli(120);
+                    Get.to(() => WalletsScreen(pmm));
                   },
                   child: Row(
                     children: const [
@@ -181,7 +182,7 @@ class PrimeHomeScreen extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     await waitMilli();
-                    Get.offAll(() => const ShoppingScreenHomePage());
+                    // Get.offAll(() => const ShoppingScreenHomePage());
                   },
                   child: Row(
                     children: const [
@@ -200,6 +201,18 @@ class PrimeHomeScreen extends StatelessWidget {
                       Icon(MdiIcons.shopping),
                       SizedBox(width: 10),
                       Text("Shopping"),
+                    ],
+                  )),
+              TextButton(
+                  onPressed: () async {
+                    await waitMilli();
+                    Get.offAllNamed("/prime");
+                  },
+                  child: Row(
+                    children: const [
+                      Icon(MdiIcons.logout),
+                      SizedBox(width: 10),
+                      Text("Prime Logout"),
                     ],
                   )),
             ],
