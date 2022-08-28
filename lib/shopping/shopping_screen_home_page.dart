@@ -11,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
 import '../custom widgets/bottom_bar_login.dart';
 import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
@@ -83,7 +82,7 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
                 SizedBox(height: 60),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("V_1.0.5\nDated 27 Aug 2022, 04:22pm"),
+                  child: Text("V_1.0.8\nDated 28 Aug 2022, 06:00pm"),
                 ),
                 SizedBox(height: 10),
                 PoliciesPortion(),

@@ -14,60 +14,89 @@ import '../dart/rx_variables.dart';
 import 'prime_member_model.dart';
 
 class KycModel {
+  String userName;
   String? aadhaarUrl;
   String? panCardUrl;
   String? checkOrPassbookUrl;
   String? accountNumber;
   String? ifsc;
   String? bankName;
-
+  DateTime? updatedTime;
   String aadhaarStatus;
   String panCardStatus;
   String checkOrPassbookStatus;
   String accountNumberStatus;
   String ifscStatus;
-
+  String? adminComments;
   bool? isKycVerified;
   DocumentReference<Map<String, dynamic>>? docRef;
 
   KycModel({
+    required this.userName,
     required this.aadhaarUrl,
     required this.panCardUrl,
     required this.checkOrPassbookUrl,
     required this.accountNumber,
     required this.ifsc,
     required this.bankName,
+    required this.updatedTime,
     this.ifscStatus = "",
     this.aadhaarStatus = "",
     this.panCardStatus = "",
     this.checkOrPassbookStatus = "",
     this.accountNumberStatus = "",
-    this.isKycVerified = false,
+    required this.isKycVerified,
+    this.adminComments,
     this.docRef,
   });
 
   Map<String, dynamic> toMap() {
+    var km = KycModel(
+      updatedTime: DateTime.now(),
+      userName: userName,
+      aadhaarUrl: aadhaarUrl,
+      panCardUrl: panCardUrl,
+      checkOrPassbookUrl: checkOrPassbookUrl,
+      accountNumber: accountNumber,
+      ifsc: ifsc,
+      bankName: bankName,
+      ifscStatus: ifscStatus,
+      aadhaarStatus: aadhaarStatus,
+      panCardStatus: panCardStatus,
+      checkOrPassbookStatus: checkOrPassbookStatus,
+      accountNumberStatus: accountNumberStatus,
+      adminComments: adminComments,
+      isKycVerified: false,
+    );
+
     return {
+      primeMOs.userName: userName,
       kycMOs.aadhaarUrl: aadhaarUrl,
       kycMOs.panCardUrl: panCardUrl,
       kycMOs.checkOrPassbookUrl: checkOrPassbookUrl,
       kycMOs.accountNumber: accountNumber,
       kycMOs.ifsc: ifsc,
       kycMOs.ifscStatus: ifscStatus,
+      kycMOs.bankName: bankName,
       kycMOs.aadhaarStatus: aadhaarStatus,
+      kycMOs.updatedTime: updatedTime,
       kycMOs.panCardStatus: panCardStatus,
       kycMOs.checkOrPassbookStatus: checkOrPassbookStatus,
       kycMOs.accountNumberStatus: accountNumberStatus,
+      kycMOs.adminComments: adminComments,
+      kycMOs.isKycVerified: kycMOs.isKycVrf(km),
     };
   }
 
   factory KycModel.fromMap(Map<String, dynamic> kycMap) {
     var km = KycModel(
+      userName: kycMap[primeMOs.userName],
       aadhaarUrl: kycMap[kycMOs.aadhaarUrl],
       panCardUrl: kycMap[kycMOs.panCardUrl],
       checkOrPassbookUrl: kycMap[kycMOs.checkOrPassbookUrl],
       accountNumber: kycMap[kycMOs.accountNumber],
       ifsc: kycMap[kycMOs.ifsc],
+      updatedTime: kycMap[kycMOs.updatedTime]?.toDate(),
       ifscStatus: kycMap[kycMOs.ifscStatus] ?? "",
       bankName: kycMap[kycMOs.bankName],
       aadhaarStatus: kycMap[kycMOs.aadhaarStatus] ?? "",
@@ -75,6 +104,7 @@ class KycModel {
       checkOrPassbookStatus: kycMap[kycMOs.checkOrPassbookStatus] ?? "",
       accountNumberStatus: kycMap[kycMOs.accountNumberStatus] ?? "",
       isKycVerified: kycMap[kycMOs.isKycVerified],
+      adminComments: kycMap[kycMOs.adminComments],
     );
     km.isKycVerified = kycMOs.isKycVrf(km);
     return km;
@@ -97,13 +127,15 @@ class KycModelObjects {
   final checkOrPassbookStatus = "checkOrPassbookStatus";
   final isKycVerified = "isKycVerified";
   final kyc = "kyc";
+  final adminComments = "adminComments";
+  final updatedTime = "updatedTime";
 
   //
   final verified = "verified";
   final invalid = "invalid";
   final uploaded = "uploaded";
-  DocumentReference<Map<String, dynamic>> kycDR(PrimeMemberModel pmm) {
-    return pmm.docRef!.collection("docs").doc(kyc);
+  DocumentReference<Map<String, dynamic>> kycDR(String userName) {
+    return FirebaseFirestore.instance.collection(kyc).doc(userName);
   }
 
   bool isKycVrf(KycModel km) {
@@ -122,8 +154,8 @@ class KycModelObjects {
   }
 
   //
-  Future<bool?> isPrimeKycVerified(PrimeMemberModel pmm) async {
-    return await kycDR(pmm).get().then((ds) {
+  Future<bool?> isPrimeKycVerified(String userName) async {
+    return await kycDR(userName).get().then((ds) {
       if (ds.exists && ds.data() != null) {
         var km = KycModel.fromMap(ds.data()!);
         return km.isKycVerified;
@@ -147,7 +179,7 @@ class KycModelObjects {
   Future<void> pickPhoto(
       {required ImageSource source,
       required String photoName,
-      required PrimeMemberModel pmm}) async {
+      required KycModel km}) async {
     await imagePicker.pickImage(source: source).then((photo) async {
       if (photo != null && fireUser() != null) {
         isLoading.value = true;
@@ -159,13 +191,14 @@ class KycModelObjects {
 
           final primeUserSR = storageRef
               .child(primeMOs.primeMembers)
-              .child(pmm.userName!)
+              .child(km.userName)
               .child("$photoName.jpg");
           await primeUserSR.putFile(compressedFile).then((ts) async {
             await ts.ref.getDownloadURL().then((url) async {
-              await kycDR(pmm).set({
+              await kycDR(km.userName).set({
                 photoName: url,
                 getCorresBoolName(photoName) ?? "error": uploaded,
+                updatedTime: DateTime.now(),
               }, SetOptions(merge: true));
             });
           });

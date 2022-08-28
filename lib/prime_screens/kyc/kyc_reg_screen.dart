@@ -2,7 +2,6 @@ import 'package:advaithaunnathi/custom%20widgets/stream_builder_widget.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/dart/text_formatters.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,34 +10,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../../model/kyc_model.dart';
-import '../../model/prime_member_model.dart';
 
 class KycRegScreen extends StatelessWidget {
-  PrimeMemberModel pmm;
-  KycRegScreen(this.pmm, {Key? key}) : super(key: key);
+  KycModel km;
+  KycRegScreen(this.km, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var km = KycModel(
-        aadhaarUrl: null,
-        panCardUrl: null,
-        checkOrPassbookUrl: null,
-        accountNumber: null,
-        ifsc: null,
-        docRef: kycMOs.kycDR(pmm),
-        bankName: null);
-
     Widget bodyW(KycModel km) {
       return Obx(() => Stack(
             children: [
-              KycBody(pmm, km),
+              KycBody(km),
               if (isLoading.value) const Center(child: GFLoader()),
             ],
           ));
     }
 
     return StreamDocBuilder(
-      docRef: kycMOs.kycDR(pmm),
+      docRef: km.docRef!,
       loadingW: Scaffold(
           appBar: AppBar(title: const Text("KYC")), body: const GFLoader()),
       noResultsW:
@@ -65,10 +54,9 @@ class KycRegScreen extends StatelessWidget {
 }
 
 class KycBody extends StatelessWidget {
-  final PrimeMemberModel pmm;
-  final KycModel km;
+  KycModel km;
 
-  const KycBody(this.pmm, this.km, {Key? key}) : super(key: key);
+  KycBody(this.km, {Key? key}) : super(key: key);
   final underVerification = "\u23F3 Under verification";
 
   @override
@@ -97,10 +85,9 @@ class KycBody extends StatelessWidget {
                   if (value.contains(RegExp(r'^[0-9]{6,15}'))) {
                     EasyDebounce.debounce(
                         'd', const Duration(milliseconds: 1400), () async {
-                      await km.docRef?.set({
-                        kycMOs.accountNumber: value,
-                        kycMOs.accountNumberStatus: kycMOs.uploaded,
-                      }, SetOptions(merge: true));
+                      km.accountNumber = value;
+                      km.accountNumberStatus = kycMOs.uploaded;
+                      await km.docRef!.update(km.toMap());
                     });
                   }
                 },
@@ -145,11 +132,16 @@ class KycBody extends StatelessWidget {
                       var bankDetails = await kycMOs.getIFSCdetails(value);
                       ifscDetails.value = bankDetails ?? "Invalid IFSC code";
                       if (bankDetails != null) {
-                        await km.docRef?.set({
-                          kycMOs.ifsc: value,
-                          kycMOs.bankName: await kycMOs.getIFSCbank(value),
-                          kycMOs.ifscStatus: kycMOs.uploaded,
-                        }, SetOptions(merge: true));
+                        // await km.docRef?.set({
+                        //   kycMOs.ifsc: value,
+                        //   kycMOs.bankName: await kycMOs.getIFSCbank(value),
+                        //   kycMOs.ifscStatus: kycMOs.uploaded,
+                        // }, SetOptions(merge: true));
+
+                        km.ifsc = value;
+                        km.bankName = await kycMOs.getIFSCbank(value);
+                        km.ifscStatus = kycMOs.uploaded;
+                        await km.docRef!.update(km.toMap());
                       }
                     });
                   } else {
@@ -216,7 +208,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.gallery,
                                 photoName: kycMOs.aadhaarUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -226,7 +218,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.camera,
                                 photoName: kycMOs.aadhaarUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))
@@ -275,7 +267,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.gallery,
                                 photoName: kycMOs.panCardUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -285,7 +277,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.camera,
                                 photoName: kycMOs.panCardUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))
@@ -336,7 +328,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.gallery,
                                 photoName: kycMOs.checkOrPassbookUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.image)),
@@ -346,7 +338,7 @@ class KycBody extends StatelessWidget {
                             kycMOs.pickPhoto(
                                 source: ImageSource.camera,
                                 photoName: kycMOs.checkOrPassbookUrl,
-                                pmm: pmm);
+                                km: km);
                           }
                         },
                         icon: const Icon(MdiIcons.camera))

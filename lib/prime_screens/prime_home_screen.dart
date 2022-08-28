@@ -1,10 +1,12 @@
 import 'package:advaithaunnathi/dart/colors.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
+import 'package:advaithaunnathi/model/kyc_model.dart';
 import 'package:advaithaunnathi/prime_screens/direct%20income/direct_income_history.dart';
 import 'package:advaithaunnathi/prime_screens/kyc/kyc_reg_screen.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/_wallet_home_screen.dart';
 import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -169,8 +171,27 @@ class PrimeHomeScreen extends StatelessWidget {
                     ],
                   )),
               TextButton(
-                  onPressed: () {
-                    Get.to(() => KycRegScreen(pmm));
+                  onPressed: () async {
+                    var km = KycModel(
+                        userName: pmm.userName!,
+                        aadhaarUrl: null,
+                        panCardUrl: null,
+                        checkOrPassbookUrl: null,
+                        accountNumber: null,
+                        ifsc: null,
+                        bankName: null,
+                        updatedTime: null,
+                        isKycVerified: null);
+                    km.docRef = kycMOs.kycDR(pmm.userName!);
+                    await km.docRef!.get().then((ds) async {
+                      if (ds.exists && ds.data() != null) {
+                        km = KycModel.fromMap(ds.data()!);
+                      } else {
+                        await km.docRef!
+                            .set(km.toMap(), SetOptions(merge: true));
+                      }
+                      Get.to(() => KycRegScreen(km));
+                    });
                   },
                   child: Row(
                     children: const [

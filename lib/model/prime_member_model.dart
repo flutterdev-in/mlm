@@ -16,7 +16,7 @@ class PrimeMemberModel {
   String? email;
   String? phoneNumber;
   String? refMemberId;
-  DateTime? paymentTime;
+  DateTime? userRegTime;
   int directIncome;
 
   String? orderID;
@@ -38,7 +38,7 @@ class PrimeMemberModel {
     required this.email,
     required this.phoneNumber,
     required this.refMemberId,
-    required this.paymentTime,
+    required this.userRegTime,
     required this.directIncome,
     required this.orderID,
     required this.isPaid,
@@ -58,7 +58,7 @@ class PrimeMemberModel {
       primeMOs.email: email,
       primeMOs.phoneNumber: phoneNumber,
       primeMOs.refMemberId: refMemberId,
-      primeMOs.paymentTime: paymentTime,
+      primeMOs.userRegTime: userRegTime,
       primeMOs.directIncome: directIncome,
       primeMOs.orderID: orderID,
       primeMOs.isPaid: isPaid,
@@ -82,7 +82,7 @@ class PrimeMemberModel {
       email: userMap[primeMOs.email],
       phoneNumber: userMap[primeMOs.phoneNumber],
       refMemberId: userMap[primeMOs.refMemberId],
-      paymentTime: userMap[primeMOs.paymentTime]?.toDate(),
+      userRegTime: userMap[primeMOs.userRegTime]?.toDate(),
       directIncome: userMap[primeMOs.directIncome] ?? 0,
       orderID: userMap[primeMOs.orderID],
       isPaid: userMap[primeMOs.isPaid],
@@ -105,7 +105,7 @@ class PrimeMemberModelObjects {
   final email = "email";
   final phoneNumber = "phoneNumber";
   final refMemberId = "refMemberId";
-  final paymentTime = "paymentTime";
+  final userRegTime = "userRegTime";
   final directIncome = "directIncome";
   final fcmToken = "fcmToken";
   final orderID = "orderID";
@@ -152,7 +152,7 @@ class PrimeMemberModelObjects {
       HttpsCallable addPos =
           FirebaseFunctions.instance.httpsCallable('add_prime_position');
       await addPos.call(<String, dynamic>{
-        "uid": pmm.userName!,
+        primeMOs.userName: pmm.userName!,
       });
     } else {
       Get.snackbar("Error", "Invalid user credentials");
@@ -214,12 +214,14 @@ class PrimeMemberModelObjects {
           if (status.data == "paid") {
             isPaid = true;
             pmm.isPaid = true;
-            await addPrimePosition(pmm);
             await pmm.docRef!.update(pmm.toMap());
+            await addPrimePosition(pmm);
           } else if (pmm.isPaid == null && (status.data == "attempted")) {
             pmm.isPaid = false;
             await pmm.docRef!.update(pmm.toMap());
           }
+        } else if (pmm.isPaid == true) {
+          isPaid = true;
         }
       }
     });

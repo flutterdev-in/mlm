@@ -73,7 +73,7 @@ class MatrixWalletWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FutureBuilder<bool?>(
-                    future: kycMOs.isPrimeKycVerified(pmm),
+                    future: kycMOs.isPrimeKycVerified(pmm.userName!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         var isKycVerified = snapshot.data;
@@ -137,7 +137,7 @@ class MatrixWalletWidget extends StatelessWidget {
 
   //
   Future<void> matrixWithdrawBS() async {
-    var isKycVerified = await kycMOs.isPrimeKycVerified(pmm);
+    var isKycVerified = await kycMOs.isPrimeKycVerified(pmm.userName!);
     var mi = await withdrawMOs.matrixIncomeF(pmm.memberPosition!);
 
     if (isKycVerified != true || needDirectRef(mi) != 0) {

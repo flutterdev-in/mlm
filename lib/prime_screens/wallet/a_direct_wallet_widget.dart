@@ -57,7 +57,7 @@ class DirectWalletWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FutureBuilder<bool?>(
-                    future: kycMOs.isPrimeKycVerified(pmm),
+                    future: kycMOs.isPrimeKycVerified(pmm.userName!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         var isKycVerified = snapshot.data;

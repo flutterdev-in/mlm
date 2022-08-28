@@ -51,7 +51,6 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
     email: null,
     phoneNumber: null,
     refMemberId: null,
-    paymentTime: null,
     directIncome: 0,
     orderID: null,
     isPaid: null,
@@ -60,6 +59,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
     userPassword: null,
     profilePhotoUrl: null,
     fcmToken: null,
+    userRegTime: null,
   );
 
   //
@@ -83,12 +83,15 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                   password(),
                   const SizedBox(height: 10),
                   dropDown(),
+                  const SizedBox(height: 15),
+                  signUp(),
+                  const Text("V_1.0.8\nDated 28 Aug 2022, 06:00pm"),
+                  const SizedBox(
+                    height: 100,
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
-            signUp(),
-            const SizedBox(height: 15),
           ],
         ),
       ),
@@ -616,10 +619,9 @@ under Your Account, and any consequences therefrom.'''));
                 onPressed: () async {
                   if (isAllTrue()) {
                     isLoading.value = true;
-                    await primeMOs
-                        .primeMemberDR(pmm.userName!)
-                        .set(pmm.toMap(), SetOptions(merge: true));
+                    pmm.userRegTime = DateTime.now();
                     pmm.docRef = primeMOs.primeMemberDR(pmm.userName!);
+                    await pmm.docRef!.set(pmm.toMap(), SetOptions(merge: true));
                     isLoading.value = false;
                     Get.to(() => PrimePaymentPage(pmm));
                   } else {
