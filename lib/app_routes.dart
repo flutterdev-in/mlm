@@ -1,8 +1,8 @@
-import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/prime_screens/prime_login_screen.dart';
 import 'package:advaithaunnathi/prime_screens/prime_registration_screen.dart';
 import 'package:get/get.dart';
 
+import 'model/prime_member_model.dart';
 import 'shopping/shopping_screen_home_page.dart';
 
 final appRoutes = [
@@ -18,7 +18,7 @@ final appRoutes = [
     },
   ),
   GetPage(
-    name: "/referral/:${userMOs.refMemberId}",
+    name: "/referral/:${primeMOs.refMemberId}",
     page: () {
       return const PrimeRegistrationScreen();
     },

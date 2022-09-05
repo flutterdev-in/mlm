@@ -91,16 +91,7 @@ List<int> get5downLevelEndPositions(int originalPosition) {
 
 
 
-class MH {
-  int amount;
-  bool isPlus;
-  int memPos;
-  MH({
-    required this.amount,
-    required this.isPlus,
-    required this.memPos,
-  });
-}
+
 
 int dlLastPos(int level, int originalPosition) {
   int rowNum = rowNumber(originalPosition);

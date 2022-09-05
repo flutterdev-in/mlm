@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "cleanUrls": true,
     "site": "myshopau",
     "public": "build/web",
     "ignore": [
@@ -12,17 +11,6 @@
       {
         "source": "**",
         "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
       }
     ]
   }

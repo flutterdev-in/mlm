@@ -37,7 +37,7 @@ class _PrimePaymentPageState extends State<PrimePaymentPage> {
         ],
       ),
       body: StreamDocBuilder(
-          docRef: widget.pmm.docRef!,
+          stream: widget.pmm.docRef!,
           builder: (snapshot) {
             var pmm = PrimeMemberModel.fromMap(snapshot.data()!);
             if (pmm.isPaid == true) {

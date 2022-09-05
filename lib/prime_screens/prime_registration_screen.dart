@@ -1,3 +1,4 @@
+import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
 import 'package:advaithaunnathi/dart/text_formatters.dart';
@@ -85,7 +86,7 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                   dropDown(),
                   const SizedBox(height: 15),
                   signUp(),
-                  const Text("V_1.0.8\nDated 28 Aug 2022, 06:00pm"),
+                  const Text(appUpdatedTime),
                   const SizedBox(
                     height: 100,
                   ),
@@ -319,10 +320,10 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
                   if (txt.length < 6) {
                     errorUserName.value =
                         "User name contains minimum 6 characters";
-                  } else if (txt.length > 15) {
+                  } else if (txt.length > 30) {
                     errorUserName.value =
-                        "User name contains maximum 20 characters";
-                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,20}$'))) {
+                        "User name contains maximum 30 characters";
+                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,30}$'))) {
                     errorUserName.value = "Please wait...";
                     await primeMOs.primeMemberDR(txt).get().then((ds) {
                       if (ds.exists && ds.data() != null) {

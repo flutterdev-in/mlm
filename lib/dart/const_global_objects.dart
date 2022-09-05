@@ -6,3 +6,5 @@ final ImagePicker imagePicker = ImagePicker();
 const docs = "docs";
 const stopEmoji = "\u{1F6AB}";
 const rupeeString = "\u{20B9}";
+
+const appUpdatedTime = "Updated on 01 Sep 2022, 11x16am";

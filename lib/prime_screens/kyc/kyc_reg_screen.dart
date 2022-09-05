@@ -12,51 +12,51 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../../model/kyc_model.dart';
 
 class KycRegScreen extends StatelessWidget {
-  KycModel km;
-  KycRegScreen(this.km, {Key? key}) : super(key: key);
+  final KycModel km;
+  const KycRegScreen(this.km, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget bodyW(KycModel km) {
+    Widget bodyW(KycModel km0) {
       return Obx(() => Stack(
             children: [
-              KycBody(km),
+              KycBody(km0),
               if (isLoading.value) const Center(child: GFLoader()),
             ],
           ));
     }
 
     return StreamDocBuilder(
-      docRef: km.docRef!,
+      stream: km.docRef!,
       loadingW: Scaffold(
           appBar: AppBar(title: const Text("KYC")), body: const GFLoader()),
       noResultsW:
           Scaffold(appBar: AppBar(title: const Text("KYC")), body: bodyW(km)),
       builder: (docSnap) {
-        km = KycModel.fromMap(docSnap.data()!);
-        km.docRef = docSnap.reference;
+        var km2 = KycModel.fromMap(docSnap.data()!);
+        km2.docRef = docSnap.reference;
         return Scaffold(
             appBar: AppBar(
                 title: Row(
               children: [
                 const Text("KYC"),
-                if (km.isKycVerified == true)
+                if (km2.isKycVerified == true)
                   const Text(
                     " (Verified)",
                     textScaleFactor: 0.9,
                   )
               ],
             )),
-            body: bodyW(km));
+            body: bodyW(km2));
       },
     );
   }
 }
 
 class KycBody extends StatelessWidget {
-  KycModel km;
+  final KycModel km;
 
-  KycBody(this.km, {Key? key}) : super(key: key);
+  const KycBody(this.km, {Key? key}) : super(key: key);
   final underVerification = "\u23F3 Under verification";
 
   @override

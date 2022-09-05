@@ -143,7 +143,7 @@ class PrimeMemberModelObjects {
     return FirebaseFirestore.instance.collection(primeMembers);
   }
 
-  Future<void> addPrimePosition(PrimeMemberModel pmm) async {
+  Future<void> addPrimePositionViaFire(PrimeMemberModel pmm) async {
     if (pmm.userName != null &&
         pmm.memberPosition == null &&
         pmm.isPaid == true &&
@@ -214,14 +214,13 @@ class PrimeMemberModelObjects {
           if (status.data == "paid") {
             isPaid = true;
             pmm.isPaid = true;
-            await pmm.docRef!.update(pmm.toMap());
             await addPrimePosition(pmm);
           } else if (pmm.isPaid == null && (status.data == "attempted")) {
             pmm.isPaid = false;
             await pmm.docRef!.update(pmm.toMap());
           }
-        } else if (pmm.isPaid == true) {
-          isPaid = true;
+        } else if (pmm.isPaid == true && pmm.memberPosition == null) {
+          await addPrimePosition(pmm);
         }
       }
     });
@@ -262,5 +261,34 @@ class PrimeMemberModelObjects {
     } else {
       Get.snackbar("Error", "Invalid user credentials");
     }
+  }
+
+  Future<void> addPrimePosition(PrimeMemberModel pmm) async {
+    await primeMembersCR()
+        .orderBy(primeMOs.memberPosition, descending: true)
+        .limit(1)
+        .get()
+        .then((qs) async {
+      if (qs.docs.isNotEmpty) {
+        var pmLast = PrimeMemberModel.fromMap(qs.docs.first.data());
+        pmm.memberPosition = pmLast.memberPosition! + 1;
+        pmm.isPaid = true;
+        await pmm.docRef!.update(pmm.toMap());
+
+        // Add direct income to his referrar
+        await primeMembersCR()
+            .where(primeMOs.memberID, isEqualTo: pmm.refMemberId)
+            .limit(1)
+            .get()
+            .then((qsf) async {
+          if (qsf.docs.isNotEmpty) {
+            var pmf = PrimeMemberModel.fromMap(qsf.docs.first.data());
+            pmf.directIncome = pmf.directIncome + 1;
+            pmf.docRef = qsf.docs.first.reference;
+            await pmf.docRef!.update(pmf.toMap());
+          }
+        });
+      }
+    });
   }
 }

@@ -24,21 +24,31 @@ class DirectWalletWidget extends StatelessWidget {
           titleText: "Referal benefits",
           subTitle: Padding(
             padding: const EdgeInsets.only(top: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Credits = ${pmm.directIncome * 500}"),
-                StreamBuilder<List<int>>(
-                    stream: withdrawMOs.streamWithdrawalAmountList(pmm, false),
-                    builder: (context, snapshot) {
-                      int? amount;
-                      if (snapshot.hasData) {
-                        amount = withdrawMOs.listAmount(snapshot.data!);
-                      }
-                      return Text("Debits = ${amount ?? ''}");
-                    }),
-              ],
-            ),
+            child: StreamBuilder<List<int>>(
+                stream: withdrawMOs.streamWithdrawalAmountList(pmm, false),
+                builder: (context, snapshot) {
+                  num amount = 0;
+                  if (snapshot.hasData) {
+                    amount = withdrawMOs.listAmount(snapshot.data!);
+                  }
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Credits = ${pmm.directIncome * 500}"),
+                          Text("Debits = $amount"),
+                        ],
+                      ),
+                      if (amount != 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                              "Balance = ${pmm.directIncome * 500 - amount}"),
+                        ),
+                    ],
+                  );
+                }),
           ),
           onTap: () {
             Get.to(() => ReferalBenefitsScreen(pmm));

@@ -1,4 +1,3 @@
-
 import 'positions.dart';
 
 List<MH> matrixHistory(int thisMemberPos, int lastMemberPos) {
@@ -104,4 +103,15 @@ List<MH> matrixHistory(int thisMemberPos, int lastMemberPos) {
 
   //
   return listMH;
+}
+
+class MH {
+  int amount;
+  bool isPlus;
+  int memPos;
+  MH({
+    required this.amount,
+    required this.isPlus,
+    required this.memPos,
+  });
 }

@@ -1,6 +1,7 @@
 import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/a_direct_wallet_widget.dart';
 import 'package:advaithaunnathi/prime_screens/wallet/b_matrix_wallet_widget.dart';
+import 'package:advaithaunnathi/prime_screens/wallet/c_joining_bonus.dart';
 import 'package:flutter/material.dart';
 
 class WalletsScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _WalletsScreenState extends State<WalletsScreen>
   @override
   void initState() {
     super.initState();
-    tabC = TabController(initialIndex: 0, length: 2, vsync: this);
+    tabC = TabController(initialIndex: 0, length: 3, vsync: this);
   }
 
   @override
@@ -26,13 +27,16 @@ class _WalletsScreenState extends State<WalletsScreen>
       appBar: AppBar(
           title: const Text("Wallet"),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(36.0),
+            preferredSize: const Size.fromHeight(40.0),
             child: TabBar(
               controller: tabC,
               indicatorColor: Colors.white70,
+              indicatorSize: TabBarIndicatorSize.tab,
+              isScrollable: true,
               tabs: const [
-                SizedBox(height: 30, child: Center(child: Text("Promotional"))),
-                SizedBox(height: 30, child: Center(child: Text("Referral"))),
+                SizedBox(height: 45, child: Center(child: Text("Promotional"))),
+                SizedBox(height: 45, child: Center(child: Text("Referral"))),
+                SizedBox(height: 45, child: Center(child: Text("Joining"))),
               ],
               indicatorWeight: 2.5,
             ),
@@ -44,6 +48,7 @@ class _WalletsScreenState extends State<WalletsScreen>
           children: [
             MatrixWalletWidget(widget.pmm),
             DirectWalletWidget(widget.pmm),
+            JoiningBonusWidget(widget.pmm),
           ],
         ),
       ),

@@ -112,10 +112,10 @@ class _PrimeLoginScreenState extends State<PrimeLoginScreen> {
                   if (txt.length < 6) {
                     errorUserName.value =
                         "User name contains minimum 6 characters";
-                  } else if (txt.length > 20) {
+                  } else if (txt.length > 30) {
                     errorUserName.value =
-                        "User name contains maximum 20 characters";
-                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,20}$'))) {
+                        "User name contains maximum 30 characters";
+                  } else if (txt.contains(RegExp(r'^[a-z0-9]{6,30}$'))) {
                     userNm = txt.toLowerCase();
                     errorUserName.value = "valid-";
                   } else {

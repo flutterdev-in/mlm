@@ -82,7 +82,7 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
                 SizedBox(height: 60),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("V_1.0.8\nDated 28 Aug 2022, 06:00pm"),
+                  child: Text(appUpdatedTime),
                 ),
                 SizedBox(height: 10),
                 PoliciesPortion(),

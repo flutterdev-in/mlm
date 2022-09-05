@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../model/prime_member_model.dart';
+import 'a_change_password.dart';
 
 class PrimeHomeScreen extends StatelessWidget {
   final PrimeMemberModel pmm;
@@ -118,17 +119,34 @@ class PrimeHomeScreen extends StatelessWidget {
       children: [
         Container(
           color: primaryColor,
-          height: 90,
+          height: 120,
           width: double.maxFinite,
-          child: const Align(
+          child: Align(
             alignment: Alignment.bottomLeft,
             child: Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                "\nMENU",
-                textScaleFactor: 1.2,
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    pmm.name!,
+                    textScaleFactor: 1.2,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Username : ${pmm.userName!}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(pmm.email!, style: const TextStyle(color: Colors.white)),
+                  // Text(
+                  //   "\nMENU",
+                  //   textScaleFactor: 1.2,
+                  //   style:
+                  //       TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  // ),
+                ],
               ),
             ),
           ),
@@ -138,14 +156,26 @@ class PrimeHomeScreen extends StatelessWidget {
           child: Column(
             children: [
               TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await waitMilli(120);
+                    Get.to(() => ChangePassword(pmm));
+                  },
                   child: Row(
                     children: const [
-                      Icon(MdiIcons.account),
+                      Icon(MdiIcons.key),
                       SizedBox(width: 10),
-                      Text("Profile"),
+                      Text("Change password"),
                     ],
                   )),
+              // TextButton(
+              //     onPressed: () {},
+              //     child: Row(
+              //       children: const [
+              //         Icon(MdiIcons.account),
+              //         SizedBox(width: 10),
+              //         Text("Profile"),
+              //       ],
+              //     )),
               TextButton(
                   onPressed: () async {
                     await waitMilli(120);
@@ -181,11 +211,13 @@ class PrimeHomeScreen extends StatelessWidget {
                         ifsc: null,
                         bankName: null,
                         updatedTime: null,
+                        docRef: kycMOs.kycDR(pmm.userName!),
                         isKycVerified: null);
-                    km.docRef = kycMOs.kycDR(pmm.userName!);
+
                     await km.docRef!.get().then((ds) async {
                       if (ds.exists && ds.data() != null) {
                         km = KycModel.fromMap(ds.data()!);
+                        km.docRef = ds.reference;
                       } else {
                         await km.docRef!
                             .set(km.toMap(), SetOptions(merge: true));

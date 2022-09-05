@@ -41,7 +41,7 @@ class _ReferalBenefitsScreenState extends State<ReferalBenefitsScreen>
         controller: tabC,
         children: [
           StreamDocBuilder(
-            docRef: widget.pmm.docRef!,
+            stream: widget.pmm.docRef!,
             builder: (snapshot) {
               widget.pmm = PrimeMemberModel.fromMap(snapshot.data()!);
               widget.pmm.docRef = snapshot.reference;

@@ -1,4 +1,5 @@
 import 'package:advaithaunnathi/custom%20widgets/bottom_bar_login.dart';
+import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:advaithaunnathi/dart/rx_variables.dart';
@@ -242,18 +243,24 @@ class CartItemsW extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "\u{20B9} ${snapshot.data![0].toStringAsFixed(0)}.0 ",
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              if (snapshot.data![0] < snapshot.data![1])
-                                Text(
-                                    "${((1 - snapshot.data![0] / snapshot.data![1]) * 100).toStringAsFixed(0)}% off",
+                              Row(
+                                children: [
+                                  Text(
+                                    "\u{20B9} ${snapshot.data![0].toStringAsFixed(0)}.0 ",
                                     style: const TextStyle(
-                                      color: Colors.blue,
-                                    ),
-                                    textScaleFactor: 0.9),
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  if (snapshot.data![0] < snapshot.data![1])
+                                    Text(
+                                        "${((1 - snapshot.data![0] / snapshot.data![1]) * 100).toStringAsFixed(0)}% off",
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                        ),
+                                        textScaleFactor: 0.9),
+                                ],
+                              ),
+                              const Text("+ ${rupeeString}70 shipping charges",
+                                  textScaleFactor: 0.9),
                             ],
                           ),
                         ),

@@ -1,6 +1,5 @@
 import 'package:advaithaunnathi/model/prime_member_model.dart';
 import 'package:advaithaunnathi/custom%20widgets/stream_single_query_builder.dart';
-import 'package:advaithaunnathi/model/user_model.dart';
 import 'package:advaithaunnathi/model/withdraw_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,29 +26,30 @@ class MatrixWalletWidget extends StatelessWidget {
           titleText: "Promotional coins",
           subTitle: Padding(
             padding: const EdgeInsets.only(top: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                StreamSingleQueryBuilder(
-                    query: primeMOs
-                        .primeMembersCR()
-                        .orderBy(userMOs.memberPosition, descending: true),
-                    builder: (snapshot) {
-                      var pmLast = PrimeMemberModel.fromMap(snapshot.data());
-                      return Text(
-                          "Credits = ${matrixIncome(pmm.memberPosition ?? 0, pmLast.memberPosition ?? 0)}");
-                    }),
-                StreamBuilder<List<int>>(
-                    stream: withdrawMOs.streamWithdrawalAmountList(pmm, false),
-                    builder: (context, snapshot) {
-                      int? amount;
-                      if (snapshot.hasData) {
-                        amount = withdrawMOs.listAmount(snapshot.data!);
-                      }
-                      return Text("Debits = ${amount ?? ''}");
-                    }),
-              ],
-            ),
+            child: StreamSingleQueryBuilder(
+                query: primeMOs
+                    .primeMembersCR()
+                    .orderBy(primeMOs.memberPosition, descending: true),
+                builder: (snapshot) {
+                  var pmLast = PrimeMemberModel.fromMap(snapshot.data());
+                  return StreamBuilder<List<int>>(
+                      stream:
+                          withdrawMOs.streamWithdrawalAmountList(pmm, false),
+                      builder: (context, snapshot) {
+                        int? amount;
+                        if (snapshot.hasData) {
+                          amount = withdrawMOs.listAmount(snapshot.data!);
+                        }
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                                "Credits = ${matrixIncome(pmm.memberPosition ?? 0, pmLast.memberPosition ?? 0)}"),
+                            Text("Debits = ${amount ?? ''}"),
+                          ],
+                        );
+                      });
+                }),
           ),
         ),
         Row(
@@ -98,7 +98,7 @@ class MatrixWalletWidget extends StatelessWidget {
                           children: [
                             if (needDirectRef(mi) > pmm.directIncome)
                               Text(
-                                "$stopEmoji   You are in Level ${currentLevel(mi)}, you need to have ${needDirectRef(mi)} direct referrals to eligible for withdraw (current direct referrels = ${pmm.directIncome})",
+                                "$stopEmoji   You are in Level ${currentLevel(mi)}, you need to have ${needDirectRef(mi)} direct referrals to eligible for withdraw\n(current direct referrels = ${pmm.directIncome})",
                               ),
                             if (blockedMatrixIncome(mi) != 0)
                               Padding(
