@@ -624,6 +624,7 @@ under Your Account, and any consequences therefrom.'''));
                     pmm.docRef = primeMOs.primeMemberDR(pmm.userName!);
                     await pmm.docRef!.set(pmm.toMap(), SetOptions(merge: true));
                     isLoading.value = false;
+                    //Member id & Order Id will be created and updated by Firebase Functions
                     Get.to(() => PrimePaymentPage(pmm));
                   } else {
                     bottomSheet();

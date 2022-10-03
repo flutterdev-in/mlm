@@ -63,10 +63,14 @@ class _PrimePaymentPageState extends State<PrimePaymentPage> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: GFButton(
-            child: const Text("Proceed"),
+            child: pmm.orderID != null
+                ? const Text("Proceed")
+                : const Text("Please wait..."),
             onPressed: () async {
               await waitMilli();
-              primeMOs.razorOrder(pmm);
+              if (pmm.orderID != null) {
+                primeMOs.razorOrder(pmm);
+              }
             },
           ),
         ),

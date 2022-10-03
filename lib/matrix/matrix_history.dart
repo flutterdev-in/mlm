@@ -36,7 +36,7 @@ List<MH> matrixHistory(int thisMemberPos, int lastMemberPos) {
           memPos: upLevelPosition(3, thisMemberPos)));
       listMH.add(MH(amount: 450, isPlus: false, memPos: 0));
     } else {
-      while (dlFirstPos(1, dlfp) <= lastMemberPos) {
+      while (dlFirstPos(1, dlfp + 1) <= lastMemberPos) {
         listMH.add(MH(amount: 500, isPlus: true, memPos: dlfp));
         dlfp++;
       }
@@ -103,15 +103,4 @@ List<MH> matrixHistory(int thisMemberPos, int lastMemberPos) {
 
   //
   return listMH;
-}
-
-class MH {
-  int amount;
-  bool isPlus;
-  int memPos;
-  MH({
-    required this.amount,
-    required this.isPlus,
-    required this.memPos,
-  });
 }
