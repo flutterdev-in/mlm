@@ -29,8 +29,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: 
-  cloud_firestore: 
   firebase_storage:
   cloud_functions:
   flutter_native_image: 
@@ -44,23 +42,28 @@ dependencies:
   intl:
   http:
   lottie:
-  firebase_messaging:
-  flutter_local_notifications:
+  flutter_local_notifications: ^13.0.0
   hive:
   hive_flutter:
   material_design_icons_flutter: 
-  url_strategy: ^0.2.0
+  url_strategy: 
   persistent_bottom_nav_bar:
   easy_debounce:
   carousel_slider: 
   badges:
   firebase_image:
-  photo_view: ^0.14.0 
+  photo_view:
   dots_indicator:
   image_picker:
   firebase_dynamic_links:
   share_plus:
   razorpay_web:
+  firebase_messaging: 
+  firebase_core: 
+  cloud_firestore: 
+
+dependency_overrides:
+  firebase_core_platform_interface: 4.5.1
 
 dev_dependencies:
   flutter_test:

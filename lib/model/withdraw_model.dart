@@ -1,7 +1,6 @@
 import 'package:advaithaunnathi/matrix/matrix_income.dart';
 import 'package:advaithaunnathi/matrix/net_matrix_income.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'prime_member_model.dart';
 
 class WithdrawModel {

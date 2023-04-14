@@ -6,7 +6,6 @@ import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:advaithaunnathi/shopping/Home%20screen%20w/c_products_grid_list.dart';
 import 'package:advaithaunnathi/shopping/z_cart/cart_screen.dart';
 import 'package:advaithaunnathi/user/user_account_screen.dart';
-import 'package:badges/badges.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +16,7 @@ import '../dart/repeatFunctions.dart';
 import '../services/fcm.dart';
 import '../model/user_model.dart';
 
+//
 class ShoppingScreenHomePage extends StatefulWidget {
   const ShoppingScreenHomePage({Key? key}) : super(key: key);
 
@@ -94,7 +94,6 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
 
   Widget cartBadge() {
     var cartIcon = const Icon(MdiIcons.cart);
-
     return AuthStreamBuilder(
         unAuthW: cartIcon,
         builder: (user) {
@@ -106,16 +105,14 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
             builder: (snaps) {
               if (snaps.length > 5) {
                 return Badge(
-                    badgeColor: Colors.purple,
-                    badgeContent: const Text(
-                      "5+",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    // badgeColor: Colors.purple,
+                    label:
+                        const Text("5+", style: TextStyle(color: Colors.white)),
                     child: cartIcon);
               } else {
                 return Badge(
-                    badgeColor: Colors.purple,
-                    badgeContent: Text(
+                    // badgeColor: Colors.purple,
+                    label: Text(
                       snaps.length.toString(),
                       style: const TextStyle(color: Colors.white),
                     ),
