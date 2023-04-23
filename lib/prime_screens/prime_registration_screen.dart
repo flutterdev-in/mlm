@@ -40,7 +40,6 @@ class _PrimeRegistrationScreenState extends State<PrimeRegistrationScreen> {
   var errorPhoneNumber = "".obs;
   var errorEmail = "".obs;
   var errorUserName = "".obs;
-
   var errorConfirmPassword = "".obs;
 
   //

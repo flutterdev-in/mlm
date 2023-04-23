@@ -1,13 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
-import 'package:image_picker/image_picker.dart';
 
-
-import '../dart/const_global_objects.dart';
-import '../dart/rx_variables.dart';
 import '../services/firebase.dart';
-
 
 class CategoryModel {
   String name;
@@ -84,5 +78,4 @@ class CategoriesModelObjects {
     });
     return list;
   }
-
 }

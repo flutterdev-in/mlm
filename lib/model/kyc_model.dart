@@ -2,6 +2,7 @@ import 'package:advaithaunnathi/services/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 import '../dart/const_global_objects.dart';
@@ -181,9 +182,11 @@ class KycModelObjects {
       required String photoName,
       required KycModel km}) async {
     await imagePicker.pickImage(source: source).then((photo) async {
-      if (photo != null && fireUser() != null) {
+     
+      if (photo != null) {
         isLoading.value = true;
         // isLoading.value = true;
+
         await FlutterNativeImage.compressImage(
           photo.path,
         ).then((compressedFile) async {
@@ -193,6 +196,7 @@ class KycModelObjects {
               .child(primeMOs.primeMembers)
               .child(km.userName)
               .child("$photoName.jpg");
+
           await primeUserSR.putFile(compressedFile).then((ts) async {
             await ts.ref.getDownloadURL().then((url) async {
               await kycDR(km.userName).set({

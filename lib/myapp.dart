@@ -10,8 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       themeMode: ThemeMode.light,
-      debugShowCheckedModeBanner: false,
-      
+      debugShowCheckedModeBanner: false,      
       navigatorKey: Get.key,
       theme: ThemeData(
         colorScheme: ColorScheme.light(primary: primaryColor),

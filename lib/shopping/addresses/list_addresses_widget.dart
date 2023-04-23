@@ -1,8 +1,9 @@
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:advaithaunnathi/dart/repeatFunctions.dart';
 import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/shopping/addresses/address_edit_screen.dart';
-import 'package:flutterfire_ui/firestore.dart';
+
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 

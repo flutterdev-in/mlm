@@ -2,7 +2,7 @@ import 'package:advaithaunnathi/prime_screens/prime_login_screen.dart';
 import 'package:advaithaunnathi/prime_screens/prime_registration_screen.dart';
 import 'package:get/get.dart';
 
-import 'model/prime_member_model.dart';
+// import 'model/prime_member_model.dart';
 import 'shopping/shopping_screen_home_page.dart';
 
 final appRoutes = [
@@ -18,7 +18,8 @@ final appRoutes = [
     },
   ),
   GetPage(
-    name: "/referral/:${primeMOs.refMemberId}",
+    name: "/referral",
+    // "/referral/:${primeMOs.refMemberId}",
     page: () {
       return const PrimeRegistrationScreen();
     },

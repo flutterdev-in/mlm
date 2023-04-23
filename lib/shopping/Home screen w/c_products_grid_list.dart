@@ -6,8 +6,9 @@ import 'package:advaithaunnathi/model/cart_model.dart';
 import 'package:advaithaunnathi/model/product_model.dart';
 import 'package:advaithaunnathi/shopping/Product%20screen/product_view_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/firestore.dart';
+
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -29,8 +30,10 @@ class ProductsGridList extends StatelessWidget {
             return GridView.builder(
               physics: const ClampingScrollPhysics(),
               shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, childAspectRatio: 0.68),
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  childAspectRatio: 0.9, maxCrossAxisExtent: Get.width / 2),
+              // const SliverGridDelegateWithFixedCrossAxisCount(
+              //     crossAxisCount: 2),
               itemCount: snapshot.docs.length,
               itemBuilder: (context, index) {
                 if (snapshot.hasMore && index + 1 == snapshot.docs.length) {

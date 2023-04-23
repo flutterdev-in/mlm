@@ -7,8 +7,9 @@ import 'package:advaithaunnathi/model/address_model.dart';
 import 'package:advaithaunnathi/shopping/addresses/address_edit_screen.dart';
 import 'package:advaithaunnathi/shopping/z_cart/cart_items_w.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/firestore.dart';
+
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';

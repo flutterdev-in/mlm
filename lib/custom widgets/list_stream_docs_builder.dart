@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/firestore.dart';
+
 import 'package:getwidget/components/loader/gf_loader.dart';
 
 class StreamListDocsBuilder extends StatelessWidget {
