@@ -1,17 +1,11 @@
 {
   "hosting": {
-    "site": "myshopau",
     "public": "build/web",
+    "site": "myshopau",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
     ]
   }
 }

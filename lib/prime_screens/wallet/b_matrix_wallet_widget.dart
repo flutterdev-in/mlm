@@ -32,11 +32,11 @@ class MatrixWalletWidget extends StatelessWidget {
                     .orderBy(primeMOs.memberPosition, descending: true),
                 builder: (snapshot) {
                   var pmLast = PrimeMemberModel.fromMap(snapshot.data());
-                  return StreamBuilder<List<int>>(
+                  return StreamBuilder<List<num>>(
                       stream:
                           withdrawMOs.streamWithdrawalAmountList(pmm, false),
                       builder: (context, snapshot) {
-                        int? amount;
+                        num? amount;
                         if (snapshot.hasData) {
                           amount = withdrawMOs.listAmount(snapshot.data!);
                         }
@@ -88,7 +88,7 @@ class MatrixWalletWidget extends StatelessWidget {
                           "$stopEmoji   Your KYC is not verified.\nPlease get it verified to withdraw");
                     }),
                 const SizedBox(height: 15),
-                FutureBuilder<int>(
+                FutureBuilder<num>(
                     future: withdrawMOs.matrixIncomeF(pmm.memberPosition!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
@@ -96,15 +96,15 @@ class MatrixWalletWidget extends StatelessWidget {
 
                         return Column(
                           children: [
-                            if (needDirectRef(mi) > pmm.directIncome)
+                            if (needDirectRef(mi.toInt()) > pmm.directIncome)
                               Text(
-                                "$stopEmoji   You are in Level ${currentLevel(mi)}, you need to have ${needDirectRef(mi)} direct referrals to eligible for withdraw\n(current direct referrels = ${pmm.directIncome})",
+                                "$stopEmoji   You are in Level ${currentLevel(mi.toInt())}, you need to have ${needDirectRef(mi.toInt())} direct referrals to eligible for withdraw\n(current direct referrels = ${pmm.directIncome})",
                               ),
-                            if (blockedMatrixIncome(mi) != 0)
+                            if (blockedMatrixIncome(mi.toInt()) != 0)
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                                 child: Text(
-                                  "\u{1F512}  Your ${blockedMatrixIncome(mi)} coins has been reserved for Level upgradation",
+                                  "\u{1F512}  Your ${blockedMatrixIncome(mi.toInt())} coins has been reserved for Level upgradation",
                                 ),
                               ),
                           ],
@@ -112,7 +112,7 @@ class MatrixWalletWidget extends StatelessWidget {
                       }
                       return const SizedBox();
                     }),
-                FutureBuilder<int>(
+                FutureBuilder<num>(
                     future: withdrawMOs.netIncome(pmm, true),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
@@ -140,7 +140,7 @@ class MatrixWalletWidget extends StatelessWidget {
     var isKycVerified = await kycMOs.isPrimeKycVerified(pmm.userName!);
     var mi = await withdrawMOs.matrixIncomeF(pmm.memberPosition!);
 
-    if (isKycVerified != true || needDirectRef(mi) != 0) {
+    if (isKycVerified != true || needDirectRef(mi.toInt()) != 0) {
       Get.bottomSheet(Container(
         height: 250,
         color: Colors.white,
@@ -155,11 +155,11 @@ class MatrixWalletWidget extends StatelessWidget {
                   child: Text(
                       "$stopEmoji   Your KYC is not verified.\nPlease get it verified to withdraw"),
                 ),
-              if (needDirectRef(mi) != 0)
+              if (needDirectRef(mi.toInt()) != 0)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "$stopEmoji   You are in Level ${currentLevel(mi)}, you need to have ${needDirectRef(mi)} direct referrals to eligible for withdraw (current direct referrels = ${pmm.directIncome})",
+                    "$stopEmoji   You are in Level ${currentLevel(mi.toInt())}, you need to have ${needDirectRef(mi.toInt())} direct referrals to eligible for withdraw (current direct referrels = ${pmm.directIncome})",
                   ),
                 ),
             ],

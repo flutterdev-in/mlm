@@ -31,7 +31,6 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
     FCMfunctions.onMessage();
     FCMfunctions.checkFCMtoken();
     userMOs.userInit();
-
     super.initState();
   }
 

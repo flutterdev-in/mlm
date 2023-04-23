@@ -17,7 +17,7 @@ class PrimeMemberModel {
   String? phoneNumber;
   String? refMemberId;
   DateTime? userRegTime;
-  int directIncome;
+  num directIncome;
 
   String? orderID;
   bool? isPaid;

@@ -7,9 +7,9 @@ class WithdrawModel {
   bool isMatrix;
   String userName;
   int memberPosition;
-  int amount;
+  num amount;
   DateTime requestedTime;
-  bool isSettled;
+  bool? isSettled;
   String? adminComments;
   String? transactionNumber;
   DateTime? transactionTime;
@@ -92,6 +92,14 @@ class WithdrawModelObjects {
     return FirebaseFirestore.instance.collection(withdrawals);
   }
 
+  //
+  Query<Map<String, dynamic>> withdrawalsHistoryCR(PrimeMemberModel pmm) {
+    return FirebaseFirestore.instance
+        .collection(withdrawals)
+        .where(memberPosition, isEqualTo: pmm.memberPosition)
+        .orderBy(requestedTime, descending: true);
+  }
+
   WithdrawModel wmFromPMM(
       {required PrimeMemberModel pmm,
       required bool isMatrix,
@@ -116,7 +124,7 @@ class WithdrawModelObjects {
     await withdrawalsCR()
         .where(withdrawMOs.userName, isEqualTo: pmm.userName)
         .where(withdrawMOs.isMatrix, isEqualTo: isMatrix)
-        .where(withdrawMOs.isCustomerRecd, isEqualTo: false)
+        .where(withdrawMOs.isSettled, isNotEqualTo: false)
         .limit(1)
         .get()
         .then((value) {
@@ -130,12 +138,12 @@ class WithdrawModelObjects {
     return null;
   }
 
-  Stream<List<int>> streamWithdrawalAmountList(
+  Stream<List<num>> streamWithdrawalAmountList(
       PrimeMemberModel pmm, bool isMatrix) {
     return withdrawalsCR()
         .where(withdrawMOs.userName, isEqualTo: pmm.userName)
         .where(withdrawMOs.isMatrix, isEqualTo: isMatrix)
-        .where(withdrawMOs.isCustomerRecd, isEqualTo: true)
+        .where(withdrawMOs.isSettled, isNotEqualTo: false)
         .snapshots()
         .map((qs) => qs.docs.map((qds) {
               var wm = WithdrawModel.fromMap(qds.data());
@@ -144,15 +152,15 @@ class WithdrawModelObjects {
   }
 
   //
-  Future<int> futureWithdrawalAmount(
+  Future<num> futureWithdrawalAmount(
       PrimeMemberModel pmm, bool isMatrix) async {
     return await withdrawalsCR()
         .where(withdrawMOs.userName, isEqualTo: pmm.userName)
         .where(withdrawMOs.isMatrix, isEqualTo: isMatrix)
-        .where(withdrawMOs.isCustomerRecd, isEqualTo: true)
+        .where(withdrawMOs.isSettled, isNotEqualTo: false)
         .get()
         .then((qs) {
-      int amount = 0;
+      num amount = 0;
       if (qs.docs.isNotEmpty) {
         for (var qds in qs.docs) {
           var wm = WithdrawModel.fromMap(qds.data());
@@ -163,8 +171,8 @@ class WithdrawModelObjects {
     });
   }
 
-  int listAmount(List<int> list) {
-    int amount = 0;
+  num listAmount(List<num> list) {
+    num amount = 0;
     if (list.isNotEmpty) {
       for (var element in list) {
         amount += element;
@@ -173,7 +181,7 @@ class WithdrawModelObjects {
     return amount;
   }
 
-  Future<int> matrixIncomeF(int thisPos) async {
+  Future<num> matrixIncomeF(int thisPos) async {
     var lastPM = await primeMOs.getLastPrimeMemberModel();
     if (lastPM?.memberPosition != null) {
       return matrixIncome(thisPos, lastPM!.memberPosition!);
@@ -182,11 +190,11 @@ class WithdrawModelObjects {
     }
   }
 
-  Future<int> netIncome(PrimeMemberModel pmm, bool isMatrix) async {
+  Future<num> netIncome(PrimeMemberModel pmm, bool isMatrix) async {
     var withAmt = await futureWithdrawalAmount(pmm, isMatrix);
     if (isMatrix) {
       var mi = await matrixIncomeF(pmm.memberPosition!);
-      return mi - withAmt - blockedMatrixIncome(mi);
+      return mi - withAmt - blockedMatrixIncome(mi.toInt());
     } else {
       return pmm.directIncome - withAmt;
     }
