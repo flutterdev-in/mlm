@@ -27,11 +27,11 @@ class ProductsGridList extends StatelessWidget {
             .orderBy(productMOS.uploadTime, descending: true),
         builder: (context, snapshot, _) {
           if (snapshot.hasData && snapshot.docs.isNotEmpty) {
-            return GridView.builder(
+            return ListView.builder(
               physics: const ClampingScrollPhysics(),
               shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  childAspectRatio: 0.9, maxCrossAxisExtent: Get.width / 2),
+              // gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              //     childAspectRatio: 0.9, maxCrossAxisExtent: Get.width / 2),
               // const SliverGridDelegateWithFixedCrossAxisCount(
               //     crossAxisCount: 2),
               itemCount: snapshot.docs.length,
@@ -49,62 +49,77 @@ class ProductsGridList extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Column(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          InkWell(
-                            child: SizedBox(
-                              height: 120,
-                              child: CachedNetworkImage(
-                                  imageUrl: pm.images?.first.url ?? ""),
+                          Expanded(
+                            flex: 1,
+                            child: InkWell(
+                              child: SizedBox(
+                                height: 120,
+                                child: CachedNetworkImage(
+                                    imageUrl: pm.images?.first.url ?? "",
+                                    fit: BoxFit.fill),
+                              ),
+                              onTap: () async {
+                                await waitMilli(200);
+                                Get.to(() => ProductViewScreen(pm));
+                              },
                             ),
-                            onTap: () async {
-                              await waitMilli(200);
-                              Get.to(() => ProductViewScreen(pm));
-                            },
                           ),
-                          const SizedBox(height: 8),
-                          Text(pm.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textScaleFactor: 0.95),
-                          const SizedBox(height: 3),
-                          if (pm.listPrices != null)
-                            (pm.listPrices!.first.mrp ==
-                                    pm.listPrices!.first.price)
-                                ? Text(
-                                    "\u{20B9}${pm.listPrices?.first.mrp}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text(
-                                        "\u{20B9}${pm.listPrices?.first.price}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                          "\u{20B9}${pm.listPrices?.first.mrp}",
-                                          style: const TextStyle(
-                                              decoration:
-                                                  TextDecoration.lineThrough),
-                                          textScaleFactor: 0.9),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                          "${((1 - pm.listPrices!.first.price! / pm.listPrices!.first.mrp) * 100).toStringAsFixed(0)}% off",
-                                          textScaleFactor: 0.9,
-                                          style: TextStyle(
-                                            color: Colors.deepOrange.shade600,
-                                          )),
-                                    ],
-                                  ),
-                          const SizedBox(height: 5),
-                          Align(
-                              alignment: Alignment.bottomCenter,
-                              child: addToCart(pm)),
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(pm.name),
+                                  const SizedBox(height: 10),
+                                  if (pm.listPrices != null)
+                                    (pm.listPrices!.first.mrp ==
+                                            pm.listPrices!.first.price)
+                                        ? Text(
+                                            "\u{20B9}${pm.listPrices?.first.mrp}",
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "\u{20B9}${pm.listPrices?.first.price}",
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                  "\u{20B9}${pm.listPrices?.first.mrp}",
+                                                  style: const TextStyle(
+                                                      decoration: TextDecoration
+                                                          .lineThrough),
+                                                  textScaleFactor: 0.9),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                  "${((1 - pm.listPrices!.first.price! / pm.listPrices!.first.mrp) * 100).toStringAsFixed(0)}% off",
+                                                  textScaleFactor: 0.9,
+                                                  style: TextStyle(
+                                                    color: Colors
+                                                        .deepOrange.shade600,
+                                                  )),
+                                            ],
+                                          ),
+                                  const SizedBox(height: 5),
+                                  Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: addToCart(pm)),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ));
@@ -123,32 +138,30 @@ class ProductsGridList extends StatelessWidget {
 
   //
   Widget addToCart(ProductModel pm) {
-    var cartW = Align(
-      child: GFButton(
-        position: GFPosition.end,
-        elevation: 0,
-        color: Colors.black87,
-        type: GFButtonType.outline,
-        child: const Text("Add to cart"),
-        onPressed: () async {
-          await Future.delayed(const Duration(microseconds: 900));
-          var cartM = CartModel(
-                  nos: 1,
-                  selectedPriceIndex: 0,
-                  productDR: pm.docRef!,
-                  lastTime: DateTime.now())
-              .toMap();
-          if (fireUser() != null) {
-            await authUserCR
-                .doc(fireUser()!.uid)
-                .collection(cart)
-                .doc(pm.docRef!.id)
-                .set(cartM);
-          } else {
-            bottomBarLogin();
-          }
-        },
-      ),
+    var cartW = GFButton(
+      position: GFPosition.end,
+      elevation: 0,
+      color: Colors.black87,
+      type: GFButtonType.outline,
+      child: const Text("Add to cart"),
+      onPressed: () async {
+        await Future.delayed(const Duration(microseconds: 900));
+        var cartM = CartModel(
+                nos: 1,
+                selectedPriceIndex: 0,
+                productDR: pm.docRef!,
+                lastTime: DateTime.now())
+            .toMap();
+        if (fireUser() != null) {
+          await authUserCR
+              .doc(fireUser()!.uid)
+              .collection(cart)
+              .doc(pm.docRef!.id)
+              .set(cartM);
+        } else {
+          bottomBarLogin();
+        }
+      },
     );
 
     return AuthStreamBuilder(
@@ -168,7 +181,7 @@ class ProductsGridList extends StatelessWidget {
                 children: [
                   const SizedBox(height: 5),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GFIconButton(
                           type: GFButtonType.outline,

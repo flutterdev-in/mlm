@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_auth
   share_plus
+  smart_auth
   url_launcher_windows
 )
 

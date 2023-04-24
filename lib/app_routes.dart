@@ -3,7 +3,8 @@ import 'package:advaithaunnathi/prime_screens/prime_registration_screen.dart';
 import 'package:get/get.dart';
 
 // import 'model/prime_member_model.dart';
-import 'shopping/shopping_screen_home_page.dart';
+import 'bottom_navigator.dart';
+import 'model/prime_member_model.dart';
 
 final appRoutes = [
   GetPage(
@@ -14,12 +15,13 @@ final appRoutes = [
 
           // const PrimeLoginScreen();
           // const PrimeRegistrationScreen();
-          const ShoppingScreenHomePage();
+          const BottomBarWithBody();
     },
   ),
   GetPage(
-    name: "/referral",
-    // "/referral/:${primeMOs.refMemberId}",
+    name:
+        // "/referral",
+        "/referral/:${primeMOs.refMemberId}",
     page: () {
       return const PrimeRegistrationScreen();
     },

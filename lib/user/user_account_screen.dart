@@ -40,7 +40,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          profileW(),
+          if (fireUser() != null) profileW(),
           const Divider(thickness: 2),
           GFListTile(
             avatar: const Icon(MdiIcons.orderBoolDescending),

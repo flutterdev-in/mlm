@@ -63,6 +63,7 @@ dependencies:
   # firebase_dynamic_links:
   share_plus:
   razorpay_web:
+  pinput: ^2.2.31
  
 
 # dependency_overrides:

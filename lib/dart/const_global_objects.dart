@@ -7,5 +7,5 @@ const docs = "docs";
 const stopEmoji = "\u{1F6AB}";
 const rupeeString = "\u{20B9}";
 
-const appUpdatedTime = "Updated on 23 Apr 2023, 12:10pm";
+const appUpdatedTime = "Updated on 23 Apr 2023, 05:42pm";
 // "Updated on 04 Oct 2022, 12:10am";
