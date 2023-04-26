@@ -1,16 +1,19 @@
+import 'package:advaithaunnathi/bottom_navigator.dart';
+import 'package:advaithaunnathi/custom%20widgets/text_widget.dart';
+import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
-class MyPhone extends StatefulWidget {
-  const MyPhone({Key? key}) : super(key: key);
+class PhoneAuthPage extends StatefulWidget {
+  const PhoneAuthPage({Key? key}) : super(key: key);
 
   @override
-  State<MyPhone> createState() => _MyPhoneState();
+  State<PhoneAuthPage> createState() => _PhoneAuthPageState();
 }
 
-class _MyPhoneState extends State<MyPhone> {
+class _PhoneAuthPageState extends State<PhoneAuthPage> {
   TextEditingController countryController = TextEditingController();
   TextEditingController phoneTC = TextEditingController();
 
@@ -25,22 +28,22 @@ class _MyPhoneState extends State<MyPhone> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        margin: const EdgeInsets.only(left: 25, right: 25),
-        alignment: Alignment.center,
+        margin: const EdgeInsets.only(left: 25, right: 25, top: 100),
+        // alignment: Alignment.center,
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Image.asset(
                 'assets/img1.png',
-                width: 150,
-                height: 150,
+                width: 100,
+                height: 100,
               ),
               const SizedBox(height: 25),
-              const Text("Phone Verification",
+              const Text("Log in for the best experience",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              const Text("Verify your mobile number to continue AU Shopping",
+              const Text("Enter your phone number to continue AU shopping",
                   style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
               const SizedBox(height: 30),
               Container(
@@ -79,6 +82,22 @@ class _MyPhoneState extends State<MyPhone> {
               const SizedBox(
                 height: 20,
               ),
+              RichText(
+                  text: const TextSpan(
+                      style: TextStyle(color: Colors.black),
+                      children: [
+                    TextSpan(text: "By continuing, you agree to MyShopAU's "),
+                    TextSpan(
+                        text: "Terms of Use",
+                        style: TextStyle(color: Colors.blue)),
+                    TextSpan(text: " and "),
+                    TextSpan(
+                        text: "Privacy Policy",
+                        style: TextStyle(color: Colors.blue))
+                  ])),
+              const SizedBox(
+                height: 20,
+              ),
               SizedBox(
                 width: double.infinity,
                 height: 45,
@@ -88,6 +107,7 @@ class _MyPhoneState extends State<MyPhone> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
                     onPressed: () async {
+                      isLoading.value = true;
                       if (phoneTC.text.isNum && phoneTC.text.length == 10) {
                         await FirebaseAuth.instance.verifyPhoneNumber(
                           phoneNumber: '+91 ${phoneTC.text}',
@@ -99,14 +119,15 @@ class _MyPhoneState extends State<MyPhone> {
                             print(e.message);
                           },
                           codeSent: (String verificationId, int? resendToken) {
-                            print(verificationId);
-                            Get.to(() => MyVerify(verificationId));
+                            isLoading.value = false;
+                            Get.to(() => OtpVerificationPage(verificationId));
                           },
                           codeAutoRetrievalTimeout: (String verificationId) {},
                         );
                       }
                     },
-                    child: const Text("Request OTP")),
+                    child: Obx(() =>
+                        TextW(isLoading.value ? "Loading.." : "Continue"))),
               )
             ],
           ),
@@ -118,15 +139,15 @@ class _MyPhoneState extends State<MyPhone> {
 
 //
 
-class MyVerify extends StatefulWidget {
+class OtpVerificationPage extends StatefulWidget {
   final String verificationId;
-  const MyVerify(this.verificationId, {Key? key}) : super(key: key);
+  const OtpVerificationPage(this.verificationId, {Key? key}) : super(key: key);
 
   @override
-  State<MyVerify> createState() => _MyVerifyState();
+  State<OtpVerificationPage> createState() => _OtpVerificationPageState();
 }
 
-class _MyVerifyState extends State<MyVerify> {
+class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -226,10 +247,19 @@ class _MyVerifyState extends State<MyVerify> {
                         var cred = PhoneAuthProvider.credential(
                             verificationId: widget.verificationId,
                             smsCode: otpTC.text);
-                        var uc = await FirebaseAuth.instance
-                            .signInWithCredential(cred);
-                        print(uc.user?.uid);
+                        try {
+                          var uc = await FirebaseAuth.instance
+                              .signInWithCredential(cred);
+                          if (uc.user != null) {
+                            Get.offAll(() => const BottomBarWithBody());
+                          }
+                        } catch (e) {
+                          Get.snackbar("Verification Failed",
+                              "Please enter valid details",
+                              backgroundColor: Colors.white);
+                        }
                       }
+                      // 6304242566
                     },
                     child: const Text("Verify Phone Number")),
               ),
@@ -237,11 +267,7 @@ class _MyVerifyState extends State<MyVerify> {
                 children: [
                   TextButton(
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'phone',
-                          (route) => false,
-                        );
+                        Get.back();
                       },
                       child: const Text(
                         "Edit Phone Number ?",

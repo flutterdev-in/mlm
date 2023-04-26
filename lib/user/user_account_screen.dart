@@ -6,7 +6,6 @@ import 'package:advaithaunnathi/dart/rx_variables.dart';
 import 'package:advaithaunnathi/model/user_model.dart';
 
 import 'package:advaithaunnathi/shopping/addresses/list_addresses_widget.dart';
-import 'package:advaithaunnathi/shopping/shopping_screen_home_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +74,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
               isLoading.value = true;
               await fireLogOut();
               isLoading.value = false;
-              Get.offAll(() => const ShoppingScreenHomePage());
+              // Get.offAll(() => const ShoppingScreenHomePage());
             },
           ),
         ],

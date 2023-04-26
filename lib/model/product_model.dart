@@ -19,7 +19,6 @@ class ProductModel {
   List? descriptions;
   String? priceType;
   bool? isPublic;
-
   int? productNumber;
   Reference? productSR;
 

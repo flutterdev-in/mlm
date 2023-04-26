@@ -18,7 +18,6 @@ class PrimeMemberModel {
   String? refMemberId;
   DateTime? userRegTime;
   num directIncome;
-
   String? orderID;
   bool? isPaid;
   String? interestedIn;

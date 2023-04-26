@@ -64,6 +64,7 @@ dependencies:
   share_plus:
   razorpay_web:
   pinput: ^2.2.31
+  auto_size_text:
  
 
 # dependency_overrides:

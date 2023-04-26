@@ -1,5 +1,6 @@
 import 'package:advaithaunnathi/custom%20widgets/auth_stream_builder.dart';
 import 'package:advaithaunnathi/custom%20widgets/list_stream_docs_builder.dart';
+import 'package:advaithaunnathi/custom%20widgets/text_widget.dart';
 import 'package:advaithaunnathi/dart/const_global_objects.dart';
 import 'package:advaithaunnathi/policies/policies_card.dart';
 import 'package:advaithaunnathi/services/firebase.dart';
@@ -15,6 +16,7 @@ import '../dart/colors.dart';
 import '../dart/repeatFunctions.dart';
 import '../services/fcm.dart';
 import '../model/user_model.dart';
+import '../user/phone_page.dart';
 
 //
 class ShoppingScreenHomePage extends StatefulWidget {
@@ -40,38 +42,53 @@ class _ShoppingScreenHomePageState extends State<ShoppingScreenHomePage> {
     return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
+          var user = snapshot.data;
           return Scaffold(
             appBar: AppBar(
               title: const Text("MyShop"),
               actions: [
-                IconButton(
-                  onPressed: () async {
-                    await waitMilli(250);
-                    Get.toNamed("/prime");
-                  },
-                  icon: const Icon(MdiIcons.alphaPCircleOutline),
-                ),
-                IconButton(
-                  onPressed: () {
-                    if (snapshot.hasData) {
-                      Get.to(() => const UserAccountScreen());
-                    } else {
-                      bottomBarLogin();
-                    }
-                  },
-                  icon: const Icon(MdiIcons.accountCircleOutline),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    await waitMilli(200);
-                    if (fireUser() != null) {
-                      Get.to(() => const CartScreen());
-                    } else {
-                      bottomBarLogin();
-                    }
-                  },
-                  icon: cartBadge(),
-                ),
+                if (user != null)
+                  IconButton(
+                    onPressed: () async {
+                      // await PrimeMember.update_ref_doc();
+                    },
+                    icon: const Icon(MdiIcons.transfer),
+                  ),
+                // IconButton(
+                //   onPressed: () async {
+                //     await waitMilli(250);
+                //     Get.toNamed("/prime");
+                //   },
+                //   icon: const Icon(MdiIcons.alphaPCircleOutline),
+                // ),
+                // IconButton(
+                //   onPressed: () {
+                //     if (snapshot.hasData) {
+                //       Get.to(() => const UserAccountScreen());
+                //     } else {
+                //       bottomBarLogin();
+                //     }
+                //   },
+                //   icon: const Icon(MdiIcons.accountCircleOutline),
+                // ),
+                if (user != null)
+                  IconButton(
+                    onPressed: () async {
+                      await waitMilli(200);
+                      if (fireUser() != null) {
+                        Get.to(() => const CartScreen());
+                      } else {
+                        bottomBarLogin();
+                      }
+                    },
+                    icon: cartBadge(),
+                  ),
+                if (user == null)
+                  TextButton(
+                      onPressed: () async {
+                        Get.to(() => const PhoneAuthPage());
+                      },
+                      child: const TextW("Log In", color: Colors.white)),
               ],
             ),
             body: ListView(
